@@ -1,0 +1,23 @@
+# Node
+node_modules/
+**/node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# lockfiles (keep if you intentionally want them at root)
+package-lock.json
+yarn.lock
+
+# Build output
+dist/
+build/
