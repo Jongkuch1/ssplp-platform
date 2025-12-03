@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Approval - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="admin-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="admin-dashboard.html" class="nav-link">Home</a>
+                <a href="admin-users.html" class="nav-link">Users</a>
+                <a href="admin-content.html" class="nav-link active">Content Approval</a>
+                <a href="admin-reports.html" class="nav-link">Reports</a>
+                <a href="admin-settings.html" class="nav-link">System Settings</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-check-circle"></i> Content Approval Queue</h1>
+            
+            <div class="card">
+                <div class="filter-bar">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="video">Video</option>
+                        <option value="audio">Audio</option>
+                        <option value="pdf">PDF</option>
+                        <option value="text">Text</option>
+                    </select>
+                    <select id="subjectFilter" class="filter-select">
+                        <option value="">All Subjects</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="English">English</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                    </select>
+                </div>
+
+                <div id="pendingContent" class="content-grid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeReviewModal()"></div>
+        <div class="modal-content modal-large">
+            <h3>Review Content</h3>
+            <div id="contentDetails"></div>
+            
+            <div class="form-group">
+                <label>Rejection Reason (if rejecting)</label>
+                <textarea id="rejectionReason" rows="3"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="approveContent()">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn btn-danger" onclick="rejectContent()">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn btn-secondary" onclick="closeReviewModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/universal.js"></script>
+    <script src="js/admin-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentResourceId = null;
+
+        function loadPendingContent() {
+            const pending = AdminFeatures.getPendingContent();
+            const type = document.getElementById('typeFilter').value;
+            const subject = document.getElementById('subjectFilter').value;
+            
+            let filtered = pending.filter(r => {
+                const matchType = !type || r.type === type;
+                const matchSubject = !subject || r.subject === subject;
+                return matchType && matchSubject;
+            });
+            
+            const container = document.getElementById('pendingContent');
+            container.innerHTML = filtered.length ? filtered.map(r => `
+                <div class="content-card">
+                    <div class="content-icon">
+                        <i class="fas fa-${r.type === 'video' ? 'video' : r.type === 'audio' ? 'music' : 'file-pdf'}"></i>
+                    </div>
+                    <h4>${r.title}</h4>
+                    <p><strong>Subject:</strong> ${r.subject}</p>
+                    <p><strong>Grade:</strong> ${r.grade}</p>
+                    <p><strong>Type:</strong> ${r.type}</p>
+                    <p><strong>Size:</strong> ${(r.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <small>Uploaded: ${new Date(r.uploadedAt).toLocaleDateString()}</small>
+                    <button class="btn btn-primary" onclick="reviewContent(${r.id})">
+                        Review
+                    </button>
+                </div>
+            `).join('') : '<p>No pending content</p>';
+        }
+
+        function reviewContent(resourceId) {
+            currentResourceId = resourceId;
+            const resources = JSON.parse(localStorage.getItem('resources') || '[]');
+            const resource = resources.find(r => r.id == resourceId);
+            
+            document.getElementById('contentDetails').innerHTML = `
+                <div class="content-preview">
+                    <p><strong>Title:</strong> ${resource.title}</p>
+                    <p><strong>Description:</strong> ${resource.description || 'N/A'}</p>
+                    <p><strong>Subject:</strong> ${resource.subject}</p>
+                    <p><strong>Grade:</strong> ${resource.grade}</p>
+                    <p><strong>Type:</strong> ${resource.type}</p>
+                    <p><strong>File:</strong> ${resource.name}</p>
+                    <p><strong>Size:</strong> ${(resource.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p><strong>Uploaded:</strong> ${new Date(resource.uploadedAt).toLocaleString()}</p>
+                </div>
+            `;
+            
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function approveContent() {
+            AdminFeatures.approveContent(currentResourceId);
+            closeReviewModal();
+            loadPendingContent();
+        }
+
+        function rejectContent() {
+            const reason = document.getElementById('rejectionReason').value;
+            if (!reason) {
+                Universal.showToast('Please provide rejection reason', 'warning');
+                return;
+            }
+            AdminFeatures.rejectContent(currentResourceId, reason);
+            closeReviewModal();
+            loadPendingContent();
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            currentResourceId = null;
+            document.getElementById('rejectionReason').value = '';
+        }
+
+        document.getElementById('typeFilter').addEventListener('change', loadPendingContent);
+        document.getElementById('subjectFilter').addEventListener('change', loadPendingContent);
+
+        document.addEventListener('DOMContentLoaded', loadPendingContent);
+    </script>
+</body>
+</html>

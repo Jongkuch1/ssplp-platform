@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Learn South Sudan</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/student-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="student-dashboard.html" class="nav-link active" data-i18n="home">Home</a>
+                <a href="subjects.html" class="nav-link" data-i18n="subjects">Subjects</a>
+                <a href="student-quizzes.html" class="nav-link" data-i18n="quizzes">Quizzes</a>
+                <a href="student-assignments.html" class="nav-link" data-i18n="assignments">Assignments</a>
+                <a href="tutoring.html" class="nav-link" data-i18n="tutoring">Tutoring</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="progress.html" class="nav-link" data-i18n="progress">Progress</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" id="profileBtn" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                    <div id="navProfilePic" style="width: 32px; height: 32px; border-radius: 50%; background: #6d28d9; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">S</div>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <div class="welcome-section">
+                <h1><span data-i18n="welcome">Welcome</span>, <span id="studentName">Student</span>! 👋</h1>
+                <p data-i18n="pickUpWhereLeft">Pick up where you left off or start something new</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="overallProgress">0%</h3>
+                    <p data-i18n="overallProgress">Overall Progress</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3 id="timeSpent">0 min</h3>
+                    <p data-i18n="timeSpent">Time Spent Today</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-download"></i>
+                    <h3 id="downloadedCount">0</h3>
+                    <p data-i18n="downloadedMaterials">Downloaded Materials</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar"></i>
+                    <h3 id="upcomingCount">0</h3>
+                    <p data-i18n="upcomingSessions">Upcoming Sessions</p>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="main-content">
+                    <div class="card">
+                        <h2><i class="fas fa-lightbulb"></i> <span data-i18n="suggestedLessons">Suggested Lessons</span></h2>
+                        <div id="recommendations" class="recommendations-grid">
+                            <!-- FR02: Adaptive recommendations -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-video"></i> <span data-i18n="yourUpcomingSessions">Your Upcoming Sessions</span></h2>
+                        <div id="upcomingSessions" class="sessions-list">
+                            <!-- FR05: Virtual tutoring -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-download"></i> <span data-i18n="downloadedContent">Downloaded Content</span></h2>
+                        <div id="downloadedContent" class="downloads-list">
+                            <!-- FR04: Offline content -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <div class="card">
+                        <h2 data-i18n="quickActions">Quick Actions</h2>
+                        <div class="quick-actions">
+                            <a href="subjects.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-book"></i>
+                                <span data-i18n="viewSubjects">View Subjects</span>
+                                <span class="action-badge" id="subjectsBadge" style="display: none;"></span>
+                            </a>
+                            <a href="student-quizzes.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-question-circle"></i>
+                                <span data-i18n="takeQuiz">Take Quiz</span>
+                                <span class="action-badge" id="quizzesBadge" style="display: none;"></span>
+                            </a>
+                            <a href="tutoring.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span data-i18n="viewSessions">View Sessions</span>
+                                <span class="action-badge" id="tutoringBadge" style="display: none;"></span>
+                            </a>
+                            <a href="progress.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-chart-line"></i>
+                                <span data-i18n="checkProgress">Check Progress</span>
+                                <span class="action-badge" id="progressBadge" style="display: none;"></span>
+                            </a>
+                            <a href="student-reports.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Performance Reports</span>
+                            </a>
+                            <a href="download-manager.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-download"></i>
+                                <span data-i18n="downloadMaterials">Download Materials</span>
+                                <span class="action-badge" id="downloadBadge" style="display: none;"></span>
+                            </a>
+                            <a href="messaging.html" class="quick-action" style="position: relative;">
+                                <i class="fas fa-question"></i>
+                                <span data-i18n="askForHelp">Ask for Help</span>
+                                <span class="action-badge" id="helpBadge" style="display: none;"></span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2 data-i18n="whatsAvailable">What's Available</h2>
+                        <div id="platformInfo" class="info-list">
+                            <!-- Real subjects will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/api.js"></script>
+    <script src="js/data-sync.js"></script>
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/universal.js"></script>
+    <script src="js/student/student-features.js"></script>
+    <script src="js/core/app.js"></script>
+    <script src="js/message-notification.js"></script>
+    <script src="js/quick-actions-notifications.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        // Load dashboard data
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const userName = user.name || translateRole('student');
+            document.getElementById('studentName').textContent = userName;
+            
+            // Load profile picture with initials or uploaded image
+            const profilePic = document.getElementById('navProfilePic');
+            if (user.profilePic) {
+                profilePic.innerHTML = `<img src="${user.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                profilePic.textContent = initials;
+            }
+            
+            const userName2 = user.name || translateRole('student');
+            document.getElementById('studentName').textContent = userName;
+            
+            // Load profile picture
+            if (user.profilePicture) {
+                document.getElementById('navProfilePic').src = user.profilePicture;
+            }
+            
+            // Calculate real progress from quiz attempts
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]')
+                .filter(a => a.studentId === user.id);
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]')
+                .filter(s => s.studentId === user.id);
+            
+            // Overall progress based on completed activities
+            const totalQuizzes = JSON.parse(localStorage.getItem('quizzes') || '[]').filter(q => q.status === 'active').length;
+            const totalAssignments = JSON.parse(localStorage.getItem('assignments') || '[]').filter(a => a.status === 'active').length;
+            const totalActivities = totalQuizzes + totalAssignments;
+            const completedActivities = quizAttempts.length + submissions.length;
+            const overallProgress = totalActivities > 0 ? Math.round((completedActivities / totalActivities) * 100) : 0;
+            document.getElementById('overallProgress').textContent = overallProgress + '%';
+            
+            // Time tracking - track actual session time
+            const sessionKey = `sessionTime_${user.id}_${new Date().toDateString()}`;
+            let sessionStart = parseInt(localStorage.getItem(sessionKey) || Date.now());
+            localStorage.setItem(sessionKey, sessionStart);
+            
+            function updateTimeSpent() {
+                const now = Date.now();
+                const elapsed = Math.floor((now - sessionStart) / 60000); // minutes
+                document.getElementById('timeSpent').textContent = elapsed + ' min';
+            }
+            
+            updateTimeSpent();
+            setInterval(updateTimeSpent, 60000); // Update every minute
+            
+            // Get real bookings for this student
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]')
+                .filter(b => b.studentId === user.id && new Date(b.datetime) > new Date())
+                .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+            
+            document.getElementById('upcomingCount').textContent = bookings.length;
+            
+            // FR02: Adaptive Learning Engine - Recommend based on performance
+            const recommendationsContainer = document.getElementById('recommendations');
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]').filter(c => c.status === 'active');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const subjectIcons = {'Mathematics': 'fa-calculator', 'English': 'fa-book', 'Physics': 'fa-atom', 'Chemistry': 'fa-flask', 'Biology': 'fa-dna', 'Agriculture': 'fa-seedling', 'ICT': 'fa-laptop-code', 'History': 'fa-landmark', 'Geography': 'fa-globe', 'Commerce': 'fa-briefcase', 'Accounting': 'fa-calculator', 'Literature': 'fa-book-open', 'CRE': 'fa-cross', 'Citizenship': 'fa-flag', 'Additional Mathematics': 'fa-square-root-alt'};
+            
+            // Adaptive algorithm: prioritize subjects with low scores
+            const subjectScores = {};
+            quizAttempts.forEach(a => {
+                const quiz = JSON.parse(localStorage.getItem('quizzes') || '[]').find(q => q.id === a.quizId);
+                if (quiz) {
+                    if (!subjectScores[quiz.subject]) subjectScores[quiz.subject] = [];
+                    subjectScores[quiz.subject].push(a.score);
+                }
+            });
+            
+            const weakSubjects = Object.entries(subjectScores)
+                .map(([subject, scores]) => ({ subject, avg: scores.reduce((a,b) => a+b, 0) / scores.length }))
+                .filter(s => s.avg < 70)
+                .sort((a, b) => a.avg - b.avg)
+                .map(s => s.subject);
+            
+            // Recommend courses from weak subjects first, then others
+            const recommended = courses.sort((a, b) => {
+                const aWeak = weakSubjects.indexOf(a.subject);
+                const bWeak = weakSubjects.indexOf(b.subject);
+                if (aWeak !== -1 && bWeak === -1) return -1;
+                if (aWeak === -1 && bWeak !== -1) return 1;
+                return aWeak - bWeak;
+            }).slice(0, 3);
+            
+            recommendationsContainer.innerHTML = recommended.length ? recommended.map(c => {
+                const teacher = users.find(u => u.id === c.teacherId);
+                const isWeak = weakSubjects.includes(c.subject);
+                return `
+                    <div class="recommendation-card" style="border: 1px solid ${isWeak ? '#ef4444' : '#e5e7eb'}; border-radius: 8px; padding: 20px; cursor: pointer; position: relative;" onclick="window.location.href='subjects.html'">
+                        ${isWeak ? '<span style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Needs Practice</span>' : ''}
+                        <i class="fas ${subjectIcons[c.subject] || 'fa-book'}" style="font-size: 2.5rem; color: ${isWeak ? '#ef4444' : '#6d28d9'}; margin-bottom: 10px;"></i>
+                        <h4 style="margin: 10px 0 5px 0;">${c.title}</h4>
+                        <p style="color: #6b7280; margin: 5px 0; font-size: 0.9rem;">${c.subject}</p>
+                        <p style="color: #6b7280; margin: 5px 0; font-size: 0.85rem;"><i class="fas fa-user"></i> ${teacher ? teacher.name : 'Teacher'}</p>
+                        <p style="color: #6b7280; margin: 5px 0; font-size: 0.85rem;"><i class="fas fa-book-open"></i> ${c.modules ? c.modules.length : 0} modules</p>
+                    </div>
+                `;
+            }).join('') : `<p style="grid-column: 1/-1; text-align: center; color: #64748b;">No courses available yet. <a href="subjects.html">Browse subjects</a></p>`;
+            
+            // Display upcoming sessions
+            const sessionsContainer = document.getElementById('upcomingSessions');
+            const noSessionsText = t('noUpcomingSessions');
+            const bookSessionText = t('bookSession');
+            const joinText = t('join');
+            
+            sessionsContainer.innerHTML = bookings.length ? bookings.map(s => `
+                <div class="session-card" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="margin: 0 0 5px 0;">${s.title || s.type + ' session'}</h3>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-user"></i> ${s.teacherName}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-clock"></i> ${new Date(s.datetime).toLocaleString()}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-users"></i> ${s.type}</p>
+                        </div>
+                        <a href="${s.meetLink}" target="_blank" class="btn btn-primary" style="white-space: nowrap;">
+                            <i class="fas fa-video"></i> ${joinText}
+                        </a>
+                    </div>
+                </div>
+            `).join('') : `<p>${noSessionsText} <a href="tutoring.html">${bookSessionText}</a></p>`;
+            
+            // Get real downloads
+            const downloads = JSON.parse(localStorage.getItem('downloadedAssets') || '[]')
+                .filter(d => d.studentId === user.id);
+            
+            document.getElementById('downloadedCount').textContent = downloads.length;
+            
+            // Display downloaded content
+            const dlContainer = document.getElementById('downloadedContent');
+            const noContentText = t('noDownloadedContent');
+            const downloadLinkText = t('downloadMaterialsLink');
+            
+            dlContainer.innerHTML = downloads.length ? downloads.map(d => `
+                <div class="download-item">
+                    <i class="fas fa-file"></i>
+                    <span>${d.subjectName || 'Subject ' + d.subjectId}</span>
+                    <small>${new Date(d.downloadedAt).toLocaleDateString()}</small>
+                </div>
+            `).join('') : `<p>${noContentText} <a href="download-manager.html">${downloadLinkText}</a></p>`;
+            
+            // Display all 15 subjects with course count
+            const platformInfoContainer = document.getElementById('platformInfo');
+            const allSubjects = ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Agriculture', 'Additional Mathematics', 'ICT', 'History', 'Geography', 'Commerce', 'Accounting', 'Literature', 'CRE', 'Citizenship'];
+            
+            platformInfoContainer.innerHTML = allSubjects.map(subject => {
+                const subjectCourses = courses.filter(c => c.subject === subject).length;
+                return `
+                    <div class="info-item" style="padding: 10px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <i class="fas ${subjectIcons[subject] || 'fa-book'}" style="color: #6d28d9; margin-right: 8px;"></i>
+                            <strong>${subject}</strong>
+                        </div>
+                        <span style="color: #6b7280; font-size: 0.85rem;">${subjectCourses} ${subjectCourses === 1 ? 'course' : 'courses'}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Re-translate page after dynamic content is loaded
+            translatePage();
+            
+            // Reload profile picture when page becomes visible
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    const updatedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    const profilePic = document.getElementById('navProfilePic');
+                    if (updatedUser.profilePic) {
+                        profilePic.innerHTML = `<img src="${updatedUser.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    } else if (updatedUser.name) {
+                        const initials = updatedUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                        profilePic.textContent = initials;
+                    }
+                    document.getElementById('studentName').textContent = updatedUser.name || translateRole('student');
+                }
+            });
+        });
+    </script>
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.nav-toggle')?.addEventListener('click', function() {
+            document.querySelector('.nav-menu')?.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

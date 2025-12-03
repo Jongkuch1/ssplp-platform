@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="teacher-dashboard.html" class="nav-link" data-i18n="home">Home</a>
+                <a href="teacher-courses.html" class="nav-link" data-i18n="courses">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link" data-i18n="assignments">Assignments</a>
+                <a href="teacher-students.html" class="nav-link" data-i18n="students">Students</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link active" data-i18n="analytics">Analytics</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" id="profileBtn" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                    <div id="navProfilePic" style="width: 32px; height: 32px; border-radius: 50%; background: #6d28d9; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid #6d28d9;">T</div>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-chart-bar"></i> <span data-i18n="analyticsDashboard">Analytics Dashboard</span></h1>
+            <p data-i18n="viewPerformanceMetrics">View performance metrics and insights</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3 id="totalStudents">-</h3>
+                    <p data-i18n="totalStudents">Total Students</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-book"></i>
+                    <h3 id="activeCourses">-</h3>
+                    <p data-i18n="activeCourses">Active Courses</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3 id="totalAssignments">-</h3>
+                    <p data-i18n="assignments">Assignments</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="classAverage">-</h3>
+                    <p data-i18n="classAverage">Class Average</p>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="main-content">
+                    <div class="card">
+                        <h2><i class="fas fa-chart-pie"></i> <span data-i18n="subjectPerformance">Subject Performance</span></h2>
+                        <div id="subjectPerformance" class="info-list"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-trophy"></i> <span data-i18n="topPerformers">Top Performers</span></h2>
+                        <div id="topPerformers" class="info-list"></div>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <div class="card">
+                        <h2><i class="fas fa-clock"></i> <span data-i18n="recentActivity">Recent Activity</span></h2>
+                        <div id="recentActivity" class="info-list"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-exclamation-triangle"></i> <span data-i18n="needsAttention">Needs Attention</span></h2>
+                        <div id="needsAttention" class="info-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            // Load profile picture with initials or uploaded image
+            const profilePic = document.getElementById('navProfilePic');
+            if (user.profilePic) {
+                profilePic.innerHTML = `<img src="${user.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                profilePic.textContent = initials;
+            }
+            
+            // Get data
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+            const teacherCourses = courses.filter(c => c.teacherId === user.id);
+            const assignments = JSON.parse(localStorage.getItem('assignments') || '[]').filter(a => a.teacherId === user.id);
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]');
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            
+            // Calculate statistics
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('activeCourses').textContent = teacherCourses.length;
+            document.getElementById('totalAssignments').textContent = assignments.length;
+            
+            // Class average from both quizzes and assignments
+            const gradedSubmissions = submissions.filter(s => s.status === 'graded' && s.grade !== undefined);
+            const allScores = [...quizAttempts.map(a => a.score), ...gradedSubmissions.map(s => s.grade)];
+            
+            if (allScores.length > 0) {
+                const avg = Math.round(allScores.reduce((sum, score) => sum + score, 0) / allScores.length);
+                document.getElementById('classAverage').textContent = avg + '%';
+            } else {
+                document.getElementById('classAverage').textContent = 'N/A';
+            }
+            
+            // Subject performance
+            const subjectScores = {};
+            quizAttempts.forEach(attempt => {
+                const subject = attempt.subject || 'Unknown';
+                if (!subjectScores[subject]) {
+                    subjectScores[subject] = { total: 0, count: 0 };
+                }
+                subjectScores[subject].total += attempt.score || 0;
+                subjectScores[subject].count++;
+            });
+            
+            const subjectPerf = document.getElementById('subjectPerformance');
+            const subjects = Object.keys(subjectScores);
+            if (subjects.length > 0) {
+                subjectPerf.innerHTML = subjects.map(subject => {
+                    const avg = Math.round(subjectScores[subject].total / subjectScores[subject].count);
+                    return `
+                        <div class="info-item">
+                            <strong>${subject}:</strong> ${avg}% <span data-i18n="average">average</span> (${subjectScores[subject].count} <span data-i18n="attempts">attempts</span>)
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                subjectPerf.innerHTML = '<p data-i18n="noDataAvailable">No data available yet</p>';
+            }
+            
+            // Top performers
+            const studentScores = {};
+            quizAttempts.forEach(attempt => {
+                if (!studentScores[attempt.studentId]) {
+                    studentScores[attempt.studentId] = { total: 0, count: 0 };
+                }
+                studentScores[attempt.studentId].total += attempt.score || 0;
+                studentScores[attempt.studentId].count++;
+            });
+            
+            const topPerf = document.getElementById('topPerformers');
+            const studentAvgs = Object.keys(studentScores).map(id => ({
+                id,
+                avg: studentScores[id].total / studentScores[id].count
+            })).sort((a, b) => b.avg - a.avg).slice(0, 5);
+            
+            if (topPerf && studentAvgs.length > 0) {
+                topPerf.innerHTML = studentAvgs.map((s, i) => {
+                    const student = users.find(u => u.id === parseInt(s.id));
+                    return `
+                        <div class="info-item">
+                            <strong>${i + 1}. ${student ? student.name : 'Student ' + s.id}:</strong> ${Math.round(s.avg)}%
+                        </div>
+                    `;
+                }).join('');
+            } else if (topPerf) {
+                topPerf.innerHTML = '<p data-i18n="noDataAvailable">No data available yet</p>';
+            }
+            
+            // Recent activity
+            const recentAct = document.getElementById('recentActivity');
+            const allActivity = [
+                ...submissions.map(s => ({ type: 'submission', data: s, time: s.submittedAt })),
+                ...quizAttempts.map(q => ({ type: 'quiz', data: q, time: q.completedAt }))
+            ].sort((a, b) => b.time - a.time).slice(0, 5);
+            
+            if (allActivity.length > 0) {
+                recentAct.innerHTML = allActivity.map(activity => {
+                    const student = users.find(u => u.id === activity.data.studentId);
+                    const assignment = assignments.find(a => a.id === activity.data.assignmentId);
+                    const text = activity.type === 'submission' 
+                        ? `submitted ${assignment ? assignment.title : 'assignment'}`
+                        : `completed ${activity.data.subject} quiz (${activity.data.score}%)`;
+                    return `
+                        <div class="info-item">
+                            ${student ? student.name : 'Student'} ${text}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                recentAct.innerHTML = '<p data-i18n="noRecentActivity">No recent activity</p>';
+            }
+            
+            // Needs attention
+            const needsAtt = document.getElementById('needsAttention');
+            const lowPerformers = Object.keys(studentScores).map(id => ({
+                id,
+                avg: studentScores[id].total / studentScores[id].count
+            })).filter(s => s.avg < 60).slice(0, 5);
+            
+            if (lowPerformers.length > 0) {
+                needsAtt.innerHTML = lowPerformers.map(s => {
+                    const student = users.find(u => u.id === parseInt(s.id));
+                    return `
+                        <div class="info-item" style="color: #ef4444;">
+                            <strong>${student ? student.name : 'Student ' + s.id}:</strong> ${Math.round(s.avg)}% <span data-i18n="needsHelp">needs help</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                needsAtt.innerHTML = '<p style="color: #10b981;" data-i18n="allStudentsOnTrack">All students on track!</p>';
+            }
+            
+            translatePage();
+        });
+        
+        // Mobile menu toggle
+        document.getElementById('navToggle')?.addEventListener('click', () => {
+            document.querySelector('.nav-menu')?.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

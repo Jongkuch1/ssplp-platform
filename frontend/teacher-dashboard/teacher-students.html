@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .student-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 10000; }
+        .student-modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 15px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { background: linear-gradient(135deg, #6d28d9, #5b21b6); color: white; padding: 30px; text-align: center; border-radius: 15px 15px 0 0; }
+        .modal-body { padding: 30px; }
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+        .stat-box { background: #f3f0ff; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-box h4 { font-size: 24px; color: #6d28d9; margin: 0; }
+        .stat-box p { margin: 5px 0 0; color: #6b7280; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link" data-i18n="home">Home</a>
+                <a href="teacher-courses.html" class="nav-link" data-i18n="courses">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link" data-i18n="assignments">Assignments</a>
+                <a href="teacher-students.html" class="nav-link active" data-i18n="students">Students</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link" data-i18n="analytics">Analytics</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                    <div id="navProfilePic" style="width: 32px; height: 32px; border-radius: 50%; background: #6d28d9; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid #6d28d9;">T</div>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-users"></i> <span data-i18n="myStudents">My Students</span></h1>
+            <p data-i18n="monitorStudentProgress">Monitor student progress and performance</p>
+
+            <div class="card">
+                <h2 data-i18n="studentList">Student List</h2>
+                <div id="studentsList" class="students-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="studentModal" class="student-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img id="modalProfilePic" src="https://via.placeholder.com/100" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; margin-bottom: 15px;">
+                <h2 id="modalStudentName">Student Name</h2>
+                <p id="modalStudentEmail">email@example.com</p>
+            </div>
+            <div class="modal-body">
+                <div class="stat-row">
+                    <div class="stat-box">
+                        <h4 id="modalGrade">-</h4>
+                        <p data-i18n="grade">Grade</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4 id="modalAverage">-</h4>
+                        <p data-i18n="average">Average</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4 id="modalAttempts">-</h4>
+                        <p data-i18n="quizAttempts">Quiz Attempts</p>
+                    </div>
+                </div>
+                
+                <h3 data-i18n="recentActivity">Recent Activity</h3>
+                <div id="modalActivity"></div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-secondary" onclick="closeModal()" data-i18n="close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            const profilePic = document.getElementById('navProfilePic');
+            if (user.profilePic) {
+                profilePic.innerHTML = `<img src="${user.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                profilePic.textContent = initials;
+            }
+            
+            // Force fresh load from localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]');
+            
+            console.log('Total users in system:', users.length);
+            console.log('Students found:', students.length);
+            console.log('Student details:', students.map(s => ({ id: s.id, name: s.name, email: s.email, grade: s.grade, hasPic: !!s.profilePicture })));
+            
+            const container = document.getElementById('studentsList');
+            
+            if (students.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6b7280;">
+                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <p data-i18n="noStudentsYet">No students enrolled yet</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Students will appear here once they register on the platform</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = students.map((student, index) => {
+                    const attempts = quizAttempts.filter(a => a.studentId === student.id);
+                    const avg = attempts.length > 0 ? Math.round(attempts.reduce((sum, a) => sum + (a.score || 0), 0) / attempts.length) : 0;
+                    const color = avg >= 80 ? '#10b981' : avg >= 60 ? '#f59e0b' : avg > 0 ? '#ef4444' : '#6b7280';
+                    const profilePic = student.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(student.name) + '&background=6d28d9&color=fff&size=50';
+                    
+                    console.log(`Student ${index + 1}:`, student.name, 'Profile pic:', student.profilePicture ? 'Yes' : 'No');
+                    
+                    return `
+                        <div class="activity-item" style="margin-bottom: 15px; padding: 20px;">
+                            <img src="${profilePic}" 
+                                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=6d28d9&color=fff&size=50'"
+                                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid ${color}; flex-shrink: 0;">
+                            <div style="flex: 1; margin-left: 15px;">
+                                <strong style="font-size: 16px;">${student.name}</strong>
+                                <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">
+                                    ${student.email} • 
+                                    <span data-i18n="grade">Grade</span> ${student.grade || 'N/A'} • 
+                                    <span data-i18n="average">Average</span>: ${avg > 0 ? avg + '%' : 'No data'} • 
+                                    ${attempts.length} <span data-i18n="quizAttempts">quiz attempts</span>
+                                </p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="viewStudent(${student.id})" style="flex-shrink: 0;">
+                                <i class="fas fa-eye"></i> <span data-i18n="viewProfile">View Profile</span>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            translatePage();
+        });
+        
+        function viewStudent(studentId) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const student = users.find(u => u.id === studentId);
+            if (!student) return;
+            
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]').filter(a => a.studentId === studentId);
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]').filter(s => s.studentId === studentId);
+            const avg = quizAttempts.length > 0 ? Math.round(quizAttempts.reduce((sum, a) => sum + (a.score || 0), 0) / quizAttempts.length) : 0;
+            
+            document.getElementById('modalProfilePic').src = student.profilePicture || 'https://via.placeholder.com/100';
+            document.getElementById('modalStudentName').textContent = student.name;
+            document.getElementById('modalStudentEmail').textContent = student.email;
+            document.getElementById('modalGrade').textContent = student.grade || 'N/A';
+            document.getElementById('modalAverage').textContent = avg + '%';
+            document.getElementById('modalAttempts').textContent = quizAttempts.length;
+            
+            const activityContainer = document.getElementById('modalActivity');
+            const recentActivity = [...quizAttempts.slice(-5), ...submissions.slice(-5)]
+                .sort((a, b) => new Date(b.submittedAt || b.completedAt || 0) - new Date(a.submittedAt || a.completedAt || 0))
+                .slice(0, 5);
+            
+            if (recentActivity.length > 0) {
+                activityContainer.innerHTML = recentActivity.map(activity => `
+                    <div class="info-item">
+                        ${activity.score !== undefined ? `Quiz: ${activity.score}%` : `Assignment submitted`}
+                        <small style="color: #6b7280;">${new Date(activity.submittedAt || activity.completedAt).toLocaleDateString()}</small>
+                    </div>
+                `).join('');
+            } else {
+                activityContainer.innerHTML = '<p data-i18n="noActivityYet">No activity yet</p>';
+            }
+            
+            document.getElementById('studentModal').classList.add('active');
+            translatePage();
+        }
+        
+        function closeModal() {
+            document.getElementById('studentModal').classList.remove('active');
+        }
+        
+        document.getElementById('studentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'studentModal') closeModal();
+        });
+        
+        // Mobile menu toggle
+        document.getElementById('navToggle')?.addEventListener('click', () => {
+            document.querySelector('.nav-menu')?.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

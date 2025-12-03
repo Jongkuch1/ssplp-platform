@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading Queue - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/teacher-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Home</a>
+                <a href="teacher-courses.html" class="nav-link">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link active">Assignments</a>
+                <a href="teacher-students.html" class="nav-link">Students</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link">Analytics</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-clipboard-check"></i> Grading Queue</h1>
+            
+            <div class="card">
+                <div class="grading-toolbar">
+                    <button class="btn btn-secondary" onclick="selectAll()">
+                        <i class="fas fa-check-square"></i> Select All
+                    </button>
+                    <button class="btn btn-primary" onclick="bulkGrade()">
+                        <i class="fas fa-check-double"></i> Bulk Grade Selected
+                    </button>
+                </div>
+
+                <table class="grading-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllCheckbox"></th>
+                            <th>Student</th>
+                            <th>Assignment</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Grading Modal -->
+    <div id="gradingModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeGradingModal()"></div>
+        <div class="modal-content">
+            <h3>Grade Submission</h3>
+            <div id="submissionContent"></div>
+            
+            <div class="form-group">
+                <label>Grade (0-100)</label>
+                <input type="number" id="gradeInput" min="0" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea id="commentsInput" rows="4"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="submitGrade()">Submit Grade</button>
+                <button class="btn btn-secondary" onclick="closeGradingModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/universal.js"></script>
+    <script src="js/teacher-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentSubmissionId = null;
+
+        function loadSubmissions() {
+            const submissions = TeacherFeatures.getSubmissions();
+            const pending = submissions.filter(s => s.status !== 'graded');
+            
+            const tbody = document.getElementById('submissionsTable');
+            tbody.innerHTML = pending.length ? pending.map(s => `
+                <tr>
+                    <td><input type="checkbox" class="submission-checkbox" value="${s.id}"></td>
+                    <td>${s.studentName || 'Student ' + s.studentId}</td>
+                    <td>${s.assignmentTitle || 'Assignment ' + s.assignmentId}</td>
+                    <td>${new Date(s.submittedAt).toLocaleDateString()}</td>
+                    <td><span class="badge badge-warning">${s.status}</span></td>
+                    <td>
+                        <button class="btn-icon" onclick="openGradingModal(${s.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="6">No pending submissions</td></tr>';
+        }
+
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('.submission-checkbox');
+            const selectAll = document.getElementById('selectAllCheckbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        }
+
+        document.getElementById('selectAllCheckbox').addEventListener('change', selectAll);
+
+        function bulkGrade() {
+            const selected = Array.from(document.querySelectorAll('.submission-checkbox:checked'))
+                .map(cb => parseInt(cb.value));
+            
+            if (!selected.length) {
+                Universal.showToast('No submissions selected', 'warning');
+                return;
+            }
+
+            const grade = prompt('Enter grade for all selected (0-100):');
+            if (grade && grade >= 0 && grade <= 100) {
+                TeacherFeatures.bulkGrade(selected, parseInt(grade));
+                loadSubmissions();
+            }
+        }
+
+        function openGradingModal(submissionId) {
+            currentSubmissionId = submissionId;
+            const submissions = TeacherFeatures.getSubmissions();
+            const submission = submissions.find(s => s.id == submissionId);
+            
+            document.getElementById('submissionContent').innerHTML = `
+                <p><strong>Student:</strong> ${submission.studentName || 'Student ' + submission.studentId}</p>
+                <p><strong>Assignment:</strong> ${submission.assignmentTitle || 'Assignment ' + submission.assignmentId}</p>
+                <p><strong>Submitted:</strong> ${new Date(submission.submittedAt).toLocaleString()}</p>
+                <div class="submission-answer">
+                    <strong>Answer:</strong>
+                    <p>${submission.answer || 'No answer provided'}</p>
+                </div>
+            `;
+            
+            document.getElementById('gradingModal').style.display = 'flex';
+        }
+
+        function closeGradingModal() {
+            document.getElementById('gradingModal').style.display = 'none';
+            currentSubmissionId = null;
+        }
+
+        function submitGrade() {
+            const grade = parseInt(document.getElementById('gradeInput').value);
+            const comments = document.getElementById('commentsInput').value;
+            
+            if (grade < 0 || grade > 100) {
+                Universal.showToast('Grade must be between 0 and 100', 'error');
+                return;
+            }
+
+            TeacherFeatures.gradeSubmission(currentSubmissionId, grade, comments);
+            closeGradingModal();
+            loadSubmissions();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSubmissions);
+    </script>
+</body>
+</html>

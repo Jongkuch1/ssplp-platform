@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoring - Student Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="student-dashboard.html" class="nav-link" data-i18n="home">Home</a>
+                <a href="subjects.html" class="nav-link" data-i18n="subjects">Subjects</a>
+                <a href="student-quizzes.html" class="nav-link" data-i18n="quizzes">Quizzes</a>
+                <a href="student-assignments.html" class="nav-link" data-i18n="assignments">Assignments</a>
+                <a href="tutoring.html" class="nav-link active" data-i18n="tutoring">Tutoring</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="progress.html" class="nav-link" data-i18n="progress">Progress</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" id="profileBtn">
+                    <i class="fas fa-user"></i>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1>Book Tutoring Session</h1>
+            <p>Schedule one-on-one sessions with teachers</p>
+            
+            <div class="card">
+                <h3>Your Scheduled Sessions</h3>
+                <div id="scheduledSessions"></div>
+            </div>
+            
+            <div class="card">
+                <h3>Available Teachers</h3>
+                <div id="teacherList"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/core/app.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/load-profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            translatePage();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const teachers = users.filter(u => u.role === 'teacher');
+            
+            // Load scheduled sessions for this student (match by ID or email)
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]')
+                .filter(b => (b.studentId === currentUser.id || b.studentId == currentUser.id || b.studentEmail === currentUser.email) && new Date(b.datetime) > new Date())
+                .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+            
+            console.log('Current user:', currentUser);
+            console.log('All bookings:', JSON.parse(localStorage.getItem('bookings') || '[]'));
+            console.log('Filtered bookings:', bookings);
+            
+            const sessionsContainer = document.getElementById('scheduledSessions');
+            sessionsContainer.innerHTML = bookings.length ? bookings.map(s => `
+                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">${s.title || s.subject + ' Session'}</h4>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-user"></i> ${s.teacherName}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-book"></i> ${s.subject}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-clock"></i> ${new Date(s.datetime).toLocaleString()}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-users"></i> ${s.type}</p>
+                            ${s.description ? `<p style="margin: 10px 0 0 0;">${s.description}</p>` : ''}
+                        </div>
+                        <a href="${s.meetLink}" target="_blank" class="btn btn-primary" style="white-space: nowrap;">
+                            <i class="fas fa-video"></i> Join
+                        </a>
+                    </div>
+                </div>
+            `).join('') : '<p>No scheduled sessions. Book a session with a teacher below.</p>';
+            
+            // Load available teachers
+            document.getElementById('teacherList').innerHTML = teachers.map(t => `
+                <div style="padding: 15px; border-bottom: 1px solid #e5e7eb;">
+                    <strong>${t.name}</strong>
+                    <p style="color: #6b7280;">${t.email}</p>
+                    <button class="btn btn-primary btn-sm" onclick="alert('Contact ${t.name} to schedule a session')">Book Session</button>
+                </div>
+            `).join('') || '<p>No teachers available</p>';
+        });
+    </script>
+</body>
+</html>

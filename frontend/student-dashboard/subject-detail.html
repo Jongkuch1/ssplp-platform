@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Details - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="student-dashboard.html" class="nav-link">Home</a>
+                <a href="subjects.html" class="nav-link active">Subjects</a>
+                <a href="student-quizzes.html" class="nav-link">Quizzes</a>
+                <a href="tutoring.html" class="nav-link">Tutoring</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section style="padding: 40px 0;">
+        <div class="container">
+            <a href="subjects.html" class="btn btn-secondary" style="margin-bottom: 20px; display: inline-block;">
+                <i class="fas fa-arrow-left"></i> Back to Subjects
+            </a>
+            
+            <div style="margin-bottom: 30px;">
+                <h1 id="subjectTitle">Subject</h1>
+                <p id="subjectInfo" style="color: #6b7280;"></p>
+            </div>
+
+            <div id="coursesContainer" style="display: grid; gap: 20px;"></div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const subject = urlParams.get('subject');
+            
+            if (!subject) {
+                window.location.href = 'subjects.html';
+                return;
+            }
+
+            document.getElementById('subjectTitle').textContent = subject;
+            
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]')
+                .filter(c => c.status === 'active' && c.subject === subject);
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            document.getElementById('subjectInfo').textContent = 
+                `${courses.length} ${courses.length === 1 ? 'course' : 'courses'} available`;
+            
+            const container = document.getElementById('coursesContainer');
+            
+            if (courses.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-book-open" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h3>No Courses Available</h3>
+                        <p style="color: #64748b;">No courses have been created for this subject yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = courses.map(course => {
+                const teacher = users.find(u => u.id === course.teacherId);
+                return `
+                    <div class="card">
+                        <h2>${course.title}</h2>
+                        <p style="color: #6b7280; margin: 10px 0;">
+                            <i class="fas fa-graduation-cap"></i> Grade ${course.grade} • 
+                            <i class="fas fa-user"></i> ${teacher ? teacher.name : 'Teacher'}
+                        </p>
+                        <p style="margin: 15px 0;">${course.description || 'No description available'}</p>
+                        
+                        <h3 style="margin-top: 20px; margin-bottom: 10px;">
+                            <i class="fas fa-list"></i> Modules (${course.modules ? course.modules.length : 0})
+                        </h3>
+                        
+                        ${course.modules && course.modules.length > 0 ? `
+                            <div style="display: grid; gap: 10px;">
+                                ${course.modules.map((module, index) => `
+                                    <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;"
+                                         onmouseover="this.style.borderColor='#6d28d9'; this.style.backgroundColor='#f9fafb'"
+                                         onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white'"
+                                         onclick="viewModule(${course.id}, ${index})">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <strong>Module ${index + 1}: ${module.title}</strong>
+                                                <p style="color: #6b7280; margin: 5px 0; font-size: 0.9rem;">${module.description || 'No description'}</p>
+                                            </div>
+                                            <i class="fas fa-chevron-right" style="color: #6d28d9;"></i>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p style="color: #64748b;">No modules available yet</p>'}
+                    </div>
+                `;
+            }).join('');
+        });
+
+        function viewModule(courseId, moduleIndex) {
+            const course = JSON.parse(localStorage.getItem('courses') || '[]').find(c => c.id === courseId);
+            if (!course || !course.modules || !course.modules[moduleIndex]) return;
+            
+            const module = course.modules[moduleIndex];
+            alert(`${module.title}\n\n${module.description || 'No description'}\n\nModule content and lessons will be available soon!`);
+        }
+    </script>
+</body>
+</html>

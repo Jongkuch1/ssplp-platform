@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Builder - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/teacher-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Home</a>
+                <a href="teacher-courses.html" class="nav-link">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link active">Assignments</a>
+                <a href="teacher-students.html" class="nav-link">Students</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link">Analytics</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-tasks"></i> Create Assignment</h1>
+            
+            <div class="card">
+                <form id="assignmentForm">
+                    <div class="form-group">
+                        <label>Assignment Title *</label>
+                        <input type="text" id="assignmentTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select id="assignmentSubject" required>
+                            <option value="">Select subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instructions</label>
+                        <textarea id="assignmentInstructions" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Due Date *</label>
+                        <input type="datetime-local" id="assignmentDueDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Points *</label>
+                        <input type="number" id="assignmentPoints" min="1" value="100" required>
+                    </div>
+
+                    <h3>Questions</h3>
+                    <div id="questionsContainer"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addQuestion()">
+                        <i class="fas fa-plus"></i> Add Question
+                    </button>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Create Assignment</button>
+                        <a href="teacher-assignments.html" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/universal.js"></script>
+    <script src="js/teacher-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Check if user is teacher
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (!currentUser.email || currentUser.role !== 'teacher') {
+            alert('Only teachers can create assignments');
+            window.location.href = currentUser.role === 'student' ? 'student-dashboard.html' : 'login.html';
+        }
+        
+        let questionCount = 0;
+
+        function addQuestion() {
+            questionCount++;
+            const container = document.getElementById('questionsContainer');
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item';
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <h4>Question ${questionCount}</h4>
+                    <button type="button" class="btn-icon" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <input type="text" placeholder="Question text" class="question-text" required>
+                </div>
+                <div class="form-group">
+                    <select class="question-type">
+                        <option value="text">Text Answer</option>
+                        <option value="multiple">Multiple Choice</option>
+                        <option value="essay">Essay</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" placeholder="Points" class="question-points" min="1" value="10" required>
+                </div>
+            `;
+            container.appendChild(questionDiv);
+        }
+
+        document.getElementById('assignmentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const questions = Array.from(document.querySelectorAll('.question-item')).map(q => ({
+                text: q.querySelector('.question-text').value,
+                type: q.querySelector('.question-type').value,
+                points: parseInt(q.querySelector('.question-points').value)
+            }));
+
+            const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
+            const newAssignment = {
+                id: Date.now(),
+                teacherId: user.id,
+                title: document.getElementById('assignmentTitle').value,
+                subject: document.getElementById('assignmentSubject').value,
+                instructions: document.getElementById('assignmentInstructions').value,
+                dueDate: document.getElementById('assignmentDueDate').value,
+                totalPoints: parseInt(document.getElementById('assignmentPoints').value),
+                questions,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            assignments.push(newAssignment);
+            localStorage.setItem('assignments', JSON.stringify(assignments));
+            
+            alert('Assignment created successfully!');
+            window.location.href = 'teacher-assignments.html';
+        });
+
+        addQuestion();
+    </script>
+</body>
+</html>

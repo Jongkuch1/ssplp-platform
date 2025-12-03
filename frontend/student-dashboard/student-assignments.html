@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Assignments - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="student-dashboard.html" class="nav-link" data-i18n="home">Home</a>
+                <a href="subjects.html" class="nav-link" data-i18n="subjects">Subjects</a>
+                <a href="student-quizzes.html" class="nav-link" data-i18n="quizzes">Quizzes</a>
+                <a href="student-assignments.html" class="nav-link active" data-i18n="assignments">Assignments</a>
+                <a href="tutoring.html" class="nav-link" data-i18n="tutoring">Tutoring</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="progress.html" class="nav-link" data-i18n="progress">Progress</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary">
+                    <i class="fas fa-user"></i>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-tasks"></i> <span data-i18n="myAssignments">My Assignments</span></h1>
+            <p data-i18n="viewSubmitAssignments">View and submit your assignments</p>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3 id="pendingCount">0</h3>
+                    <p data-i18n="pending">Pending</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 id="submittedCount">0</h3>
+                    <p data-i18n="submitted">Submitted</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-star"></i>
+                    <h3 id="gradedCount">0</h3>
+                    <p data-i18n="graded">Graded</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 data-i18n="allAssignments">All Assignments</h2>
+                <div id="assignmentsList"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/app.js"></script>
+    <script src="js/load-profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (user.profilePicture) {
+                document.getElementById('navProfilePic').src = user.profilePicture;
+            }
+            
+            const assignments = JSON.parse(localStorage.getItem('assignments') || '[]')
+                .filter(a => a.status === 'active');
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            const mySubmissions = submissions.filter(s => s.studentId === user.id);
+            
+            // Calculate stats
+            const pending = assignments.filter(a => !mySubmissions.find(s => s.assignmentId === a.id) && new Date(a.dueDate) > new Date());
+            const submitted = mySubmissions.filter(s => s.status === 'submitted');
+            const graded = mySubmissions.filter(s => s.status === 'graded');
+            
+            document.getElementById('pendingCount').textContent = pending.length;
+            document.getElementById('submittedCount').textContent = submitted.length;
+            document.getElementById('gradedCount').textContent = graded.length;
+            
+            // Display assignments
+            const container = document.getElementById('assignmentsList');
+            console.log('Total assignments in system:', assignments.length);
+            console.log('My submissions:', mySubmissions.length);
+            
+            if (assignments.length === 0) {
+                container.innerHTML = '<p data-i18n="noAssignmentsAvailable">No assignments available yet. Your teacher will post assignments here.</p>';
+            } else {
+                container.innerHTML = assignments.map(assignment => {
+                    const submission = mySubmissions.find(s => s.assignmentId === assignment.id);
+                    const dueDate = new Date(assignment.dueDate);
+                    const isPast = dueDate < new Date();
+                    const status = submission ? (submission.status === 'graded' ? 'Graded' : 'Submitted') : (isPast ? 'Overdue' : 'Pending');
+                    const statusColor = submission ? (submission.status === 'graded' ? '#10b981' : '#f59e0b') : (isPast ? '#ef4444' : '#6b7280');
+                    
+                    return `
+                        <div class="activity-item" style="margin-bottom: 15px;">
+                            <i class="fas fa-file-alt" style="color: ${statusColor};"></i>
+                            <div style="flex: 1;">
+                                <strong>${assignment.title}</strong>
+                                <p style="color: #6b7280; margin: 5px 0 0 0;">
+                                    ${assignment.subject} • Due: ${dueDate.toLocaleDateString()} • ${assignment.totalPoints} points
+                                    ${submission && submission.grade ? ` • Grade: ${submission.grade}/${assignment.totalPoints}` : ''}
+                                </p>
+                            </div>
+                            <span style="padding: 5px 15px; background: ${statusColor}; color: white; border-radius: 20px; font-size: 14px; margin-right: 10px;">
+                                ${status}
+                            </span>
+                            ${!submission && !isPast ? `<button class="btn btn-primary btn-sm" onclick="submitAssignment(${assignment.id})">Submit</button>` : ''}
+                            ${submission ? `<button class="btn btn-secondary btn-sm" onclick="viewSubmission(${assignment.id})">View</button>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            translatePage();
+        });
+        
+        function submitAssignment(assignmentId) {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const assignment = JSON.parse(localStorage.getItem('assignments') || '[]').find(a => a.id === assignmentId);
+            
+            if (!assignment) return;
+            
+            const answer = prompt(`Submit your work for: ${assignment.title}\n\nEnter your answer:`);
+            if (!answer) return;
+            
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            submissions.push({
+                id: Date.now(),
+                assignmentId,
+                studentId: user.id,
+                answer,
+                submittedAt: new Date().toISOString(),
+                status: 'submitted'
+            });
+            
+            localStorage.setItem('submissions', JSON.stringify(submissions));
+            alert('Assignment submitted successfully!');
+            location.reload();
+        }
+        
+        function viewSubmission(assignmentId) {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const submission = JSON.parse(localStorage.getItem('submissions') || '[]')
+                .find(s => s.assignmentId === assignmentId && s.studentId === user.id);
+            
+            if (submission) {
+                alert(`Your submission:\n\n${submission.answer}\n\nStatus: ${submission.status}\n${submission.grade ? `Grade: ${submission.grade}` : 'Not graded yet'}`);
+            }
+        }
+    </script>
+</body>
+</html>

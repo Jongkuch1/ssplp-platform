@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Audit - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="admin-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="admin-dashboard.html" class="nav-link">Home</a>
+                <a href="admin-users.html" class="nav-link">Users</a>
+                <a href="admin-content.html" class="nav-link">Content Approval</a>
+                <a href="admin-reports.html" class="nav-link">Reports</a>
+                <a href="admin-settings.html" class="nav-link">System Settings</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-shield-alt"></i> Security Audit & Logs</h1>
+            
+            <div class="card">
+                <h2>Security Alerts</h2>
+                <div id="securityAlerts"></div>
+            </div>
+
+            <div class="card">
+                <h2>Audit Logs</h2>
+                <div class="filter-bar">
+                    <select id="actionFilter" class="filter-select">
+                        <option value="">All Actions</option>
+                        <option value="user_created">User Created</option>
+                        <option value="user_updated">User Updated</option>
+                        <option value="user_deactivated">User Deactivated</option>
+                        <option value="content_approved">Content Approved</option>
+                        <option value="content_rejected">Content Rejected</option>
+                        <option value="login_failed">Login Failed</option>
+                    </select>
+                    <input type="date" id="dateFilter" class="filter-select">
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/universal.js"></script>
+    <script src="js/admin-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        function loadSecurityAlerts() {
+            const alerts = AdminFeatures.detectSuspiciousActivity();
+            const container = document.getElementById('securityAlerts');
+            
+            container.innerHTML = alerts.length ? alerts.map(a => `
+                <div class="alert alert-${a.severity}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>${a.type.replace(/_/g, ' ').toUpperCase()}</strong>
+                    <p>User: ${a.user} - ${a.count} attempts</p>
+                </div>
+            `).join('') : '<div class="alert alert-success"><i class="fas fa-check-circle"></i> No security alerts</div>';
+        }
+
+        function loadAuditLogs() {
+            const action = document.getElementById('actionFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            const filters = {};
+            if (action) filters.action = action;
+            if (date) filters.startDate = new Date(date).getTime();
+            
+            const logs = AdminFeatures.getAuditLogs(filters);
+            const tbody = document.getElementById('logsTable');
+            
+            tbody.innerHTML = logs.length ? logs.slice(0, 100).map(l => `
+                <tr>
+                    <td>${new Date(l.timestamp).toLocaleString()}</td>
+                    <td>${l.user}</td>
+                    <td><span class="badge badge-info">${l.action}</span></td>
+                    <td>${JSON.stringify(l.details).substring(0, 50)}...</td>
+                    <td>${l.ip}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="5">No logs found</td></tr>';
+        }
+
+        document.getElementById('actionFilter').addEventListener('change', loadAuditLogs);
+        document.getElementById('dateFilter').addEventListener('change', loadAuditLogs);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSecurityAlerts();
+            loadAuditLogs();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Resources - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="student-dashboard.html" class="nav-link">Home</a>
+                <a href="subjects.html" class="nav-link">Subjects</a>
+                <a href="student-resources.html" class="nav-link active">Resources</a>
+                <a href="student-quizzes.html" class="nav-link">Quizzes</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section style="padding: 40px 0;">
+        <div class="container">
+            <h1><i class="fas fa-book-open"></i> Learning Resources</h1>
+            <p>Study materials organized by subject</p>
+
+            <div style="margin: 20px 0;">
+                <select id="subjectFilter" style="padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                    <option value="">All Subjects</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="English">English</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Physics">Physics</option>
+                </select>
+            </div>
+
+            <div id="resourcesList" style="display: grid; gap: 20px;"></div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            loadResources();
+
+            document.getElementById('subjectFilter').addEventListener('change', loadResources);
+        });
+
+        function loadResources() {
+            const filter = document.getElementById('subjectFilter').value;
+            let resources = JSON.parse(localStorage.getItem('resources') || '[]');
+            
+            if (filter) {
+                resources = resources.filter(r => r.subject === filter);
+            }
+
+            const container = document.getElementById('resourcesList');
+            
+            if (resources.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #6b7280;">No resources available</p></div>';
+                return;
+            }
+
+            const grouped = resources.reduce((acc, r) => {
+                if (!acc[r.subject]) acc[r.subject] = [];
+                acc[r.subject].push(r);
+                return acc;
+            }, {});
+
+            container.innerHTML = Object.entries(grouped).map(([subject, items]) => `
+                <div class="card">
+                    <h2><i class="fas fa-book"></i> ${subject}</h2>
+                    <div style="display: grid; gap: 10px; margin-top: 15px;">
+                        ${items.map(r => `
+                            <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0 0 5px 0;">${r.title}</h4>
+                                    <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">
+                                        <i class="fas fa-file"></i> ${r.type} • 
+                                        <i class="fas fa-download"></i> ${r.downloads} downloads
+                                    </p>
+                                </div>
+                                <button class="btn btn-primary" onclick="accessResource(${r.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function accessResource(resourceId) {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const resource = JSON.parse(localStorage.getItem('resources') || '[]').find(r => r.id === resourceId);
+            
+            if (!resource) return;
+
+            // Track access
+            const access = {
+                id: Date.now(),
+                studentId: user.id,
+                resourceId: resourceId,
+                accessedAt: new Date().toISOString(),
+                timeSpent: Math.floor(Math.random() * 20) + 10 // Simulated time
+            };
+
+            const accessLog = JSON.parse(localStorage.getItem('resourceAccess') || '[]');
+            accessLog.push(access);
+            localStorage.setItem('resourceAccess', JSON.stringify(accessLog));
+
+            // Update download count
+            const resources = JSON.parse(localStorage.getItem('resources') || '[]');
+            const idx = resources.findIndex(r => r.id === resourceId);
+            if (idx !== -1) {
+                resources[idx].downloads++;
+                localStorage.setItem('resources', JSON.stringify(resources));
+            }
+
+            alert(`Opening: ${resource.title}\n\nThis would open the ${resource.type} file.\nYour access has been tracked for progress monitoring.`);
+            loadResources();
+        }
+    </script>
+</body>
+</html>

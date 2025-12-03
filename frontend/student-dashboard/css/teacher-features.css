@@ -1,0 +1,293 @@
+/* Teacher Dashboard Features */
+
+/* Module & Question Items */
+.module-item, .question-item {
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #e5e7eb;
+}
+
+.module-header, .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* File Upload */
+.file-upload-area {
+    border: 2px dashed #e5e7eb;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.file-upload-area:hover {
+    border-color: #6d28d9;
+    background: #f9fafb;
+}
+
+.file-upload-area i {
+    font-size: 48px;
+    color: #6d28d9;
+    margin-bottom: 10px;
+}
+
+.file-upload-area input[type="file"] {
+    display: none;
+}
+
+#fileInfo {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f0f9ff;
+    border-radius: 8px;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #e5e7eb;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 20px 0 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+    transition: width 0.3s;
+}
+
+#progressText {
+    text-align: center;
+    font-weight: 600;
+    color: #6d28d9;
+}
+
+/* Resource Item */
+.resource-item {
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.resource-item i {
+    margin-right: 10px;
+    color: #6d28d9;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Grading Table */
+.grading-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.grading-table, .student-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.grading-table th, .student-table th {
+    background: #f9fafb;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.grading-table td, .student-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.grading-table tr:hover, .student-table tr:hover {
+    background: #f9fafb;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-large {
+    max-width: 800px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.submission-answer {
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    background: white;
+}
+
+/* Score Badges */
+.score-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.score-high {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.score-medium {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.score-low {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Student Details */
+.student-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.attempts-list {
+    margin-top: 10px;
+}
+
+.attempt-item {
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+    }
+    
+    .student-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .grading-table, .student-table {
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Roster - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/teacher-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Home</a>
+                <a href="teacher-courses.html" class="nav-link">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link">Assignments</a>
+                <a href="teacher-students.html" class="nav-link active">Students</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link">Analytics</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-users"></i> Student Roster</h1>
+            
+            <div class="card">
+                <div class="filter-bar">
+                    <input type="text" id="searchInput" placeholder="Search students..." class="search-input">
+                    <select id="gradeFilter" class="filter-select">
+                        <option value="">All Grades</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                    </select>
+                    <select id="performanceFilter" class="filter-select">
+                        <option value="">All Performance</option>
+                        <option value="high">High (80%+)</option>
+                        <option value="medium">Medium (60-79%)</option>
+                        <option value="low">Low (<60%)</option>
+                    </select>
+                </div>
+
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Grade</th>
+                            <th>Avg Score</th>
+                            <th>Quizzes</th>
+                            <th>Assignments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Student Detail Modal -->
+    <div id="studentModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeStudentModal()"></div>
+        <div class="modal-content modal-large">
+            <h3 id="studentName">Student Details</h3>
+            <div id="studentDetails"></div>
+            <button class="btn btn-secondary" onclick="closeStudentModal()">Close</button>
+        </div>
+    </div>
+
+    <script src="js/universal.js"></script>
+    <script src="js/teacher-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let students = [];
+
+        function loadStudents() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            students = users.filter(u => u.role === 'student').map(s => {
+                const progress = TeacherFeatures.getStudentProgress(s.email);
+                return {
+                    ...s,
+                    avgScore: progress.avgScore,
+                    quizCount: progress.quizzes.length,
+                    assignmentCount: progress.assignments.length
+                };
+            });
+            
+            filterStudents();
+        }
+
+        function filterStudents() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const grade = document.getElementById('gradeFilter').value;
+            const performance = document.getElementById('performanceFilter').value;
+            
+            let filtered = students.filter(s => {
+                const matchSearch = !search || s.name?.toLowerCase().includes(search) || s.email.toLowerCase().includes(search);
+                const matchGrade = !grade || s.grade == grade;
+                let matchPerformance = true;
+                
+                if (performance === 'high') matchPerformance = s.avgScore >= 80;
+                else if (performance === 'medium') matchPerformance = s.avgScore >= 60 && s.avgScore < 80;
+                else if (performance === 'low') matchPerformance = s.avgScore < 60;
+                
+                return matchSearch && matchGrade && matchPerformance;
+            });
+            
+            displayStudents(filtered);
+        }
+
+        function displayStudents(studentList) {
+            const tbody = document.getElementById('studentsTable');
+            tbody.innerHTML = studentList.length ? studentList.map(s => `
+                <tr>
+                    <td>${s.name || s.email}</td>
+                    <td>Grade ${s.grade || 'N/A'}</td>
+                    <td><span class="score-badge score-${s.avgScore >= 80 ? 'high' : s.avgScore >= 60 ? 'medium' : 'low'}">${s.avgScore}%</span></td>
+                    <td>${s.quizCount}</td>
+                    <td>${s.assignmentCount}</td>
+                    <td>
+                        <button class="btn-icon" onclick="viewStudent('${s.email}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="6">No students found</td></tr>';
+        }
+
+        function viewStudent(studentId) {
+            const student = students.find(s => s.email === studentId);
+            const progress = TeacherFeatures.getStudentProgress(studentId);
+            
+            document.getElementById('studentName').textContent = student.name || student.email;
+            document.getElementById('studentDetails').innerHTML = `
+                <div class="student-stats">
+                    <div class="stat-item">
+                        <strong>Average Score:</strong> ${progress.avgScore}%
+                    </div>
+                    <div class="stat-item">
+                        <strong>Quizzes Taken:</strong> ${progress.quizzes.length}
+                    </div>
+                    <div class="stat-item">
+                        <strong>Assignments:</strong> ${progress.assignments.length}
+                    </div>
+                    <div class="stat-item">
+                        <strong>Completion Rate:</strong> ${progress.completion}%
+                    </div>
+                </div>
+                
+                <h4>Recent Quiz Attempts</h4>
+                <div class="attempts-list">
+                    ${progress.quizzes.slice(-5).map(q => `
+                        <div class="attempt-item">
+                            <span>Quiz ${q.quizId}</span>
+                            <span class="score-badge">${q.score}%</span>
+                            <small>${new Date(q.timestamp).toLocaleDateString()}</small>
+                        </div>
+                    `).join('') || '<p>No quiz attempts</p>'}
+                </div>
+            `;
+            
+            document.getElementById('studentModal').style.display = 'flex';
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterStudents);
+        document.getElementById('gradeFilter').addEventListener('change', filterStudents);
+        document.getElementById('performanceFilter').addEventListener('change', filterStudents);
+
+        document.addEventListener('DOMContentLoaded', loadStudents);
+    </script>
+</body>
+</html>

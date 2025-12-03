@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Tracking - SSPLP Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="admin-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="admin-progress-tracking.html" class="nav-link active">Progress Tracking</a>
+                <a href="admin-users.html" class="nav-link">Users</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section style="padding: 40px 0;">
+        <div class="container">
+            <h1><i class="fas fa-chart-line"></i> Student Progress Tracking</h1>
+            <p>Monitor student activity and resource usage</p>
+
+            <div class="stats-grid" style="margin: 30px 0;">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3 id="totalStudents">0</h3>
+                    <p>Total Students</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-book-open"></i>
+                    <h3 id="totalResources">0</h3>
+                    <p>Total Resources</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-eye"></i>
+                    <h3 id="totalAccess">0</h3>
+                    <p>Resource Views</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3 id="avgTime">0</h3>
+                    <p>Avg Time (min)</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Student Activity</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 10px; text-align: left;">Student</th>
+                            <th style="padding: 10px; text-align: left;">Resources Accessed</th>
+                            <th style="padding: 10px; text-align: left;">Total Time (min)</th>
+                            <th style="padding: 10px; text-align: left;">Quiz Attempts</th>
+                            <th style="padding: 10px; text-align: left;">Avg Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentActivity"></tbody>
+                </table>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2>Resource Usage by Subject</h2>
+                <div id="subjectUsage" style="display: grid; gap: 15px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            const resources = JSON.parse(localStorage.getItem('resources') || '[]');
+            const resourceAccess = JSON.parse(localStorage.getItem('resourceAccess') || '[]');
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]');
+
+            // Stats
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalResources').textContent = resources.length;
+            document.getElementById('totalAccess').textContent = resourceAccess.length;
+            
+            const avgTime = resourceAccess.length > 0 
+                ? Math.round(resourceAccess.reduce((sum, a) => sum + (a.timeSpent || 0), 0) / resourceAccess.length)
+                : 0;
+            document.getElementById('avgTime').textContent = avgTime;
+
+            // Student activity
+            const tbody = document.getElementById('studentActivity');
+            tbody.innerHTML = students.map(s => {
+                const access = resourceAccess.filter(a => a.studentId === s.id);
+                const attempts = quizAttempts.filter(a => a.studentId === s.id);
+                const avgScore = attempts.length > 0 
+                    ? Math.round(attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length)
+                    : 0;
+                const totalTime = access.reduce((sum, a) => sum + (a.timeSpent || 0), 0);
+
+                return `
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 10px;">${s.name}</td>
+                        <td style="padding: 10px;">${access.length}</td>
+                        <td style="padding: 10px;">${totalTime}</td>
+                        <td style="padding: 10px;">${attempts.length}</td>
+                        <td style="padding: 10px;">${avgScore}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Subject usage
+            const subjectStats = {};
+            resourceAccess.forEach(a => {
+                const resource = resources.find(r => r.id === a.resourceId);
+                if (resource) {
+                    if (!subjectStats[resource.subject]) {
+                        subjectStats[resource.subject] = { views: 0, time: 0 };
+                    }
+                    subjectStats[resource.subject].views++;
+                    subjectStats[resource.subject].time += a.timeSpent || 0;
+                }
+            });
+
+            const subjectContainer = document.getElementById('subjectUsage');
+            subjectContainer.innerHTML = Object.entries(subjectStats).map(([subject, stats]) => `
+                <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <h3 style="margin: 0 0 10px 0;">${subject}</h3>
+                    <p style="color: #6b7280; margin: 5px 0;">
+                        <i class="fas fa-eye"></i> ${stats.views} views • 
+                        <i class="fas fa-clock"></i> ${stats.time} minutes total
+                    </p>
+                </div>
+            `).join('') || '<p style="color: #6b7280;">No activity yet</p>';
+        });
+    </script>
+</body>
+</html>

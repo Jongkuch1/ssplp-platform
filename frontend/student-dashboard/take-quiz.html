@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Quiz - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div id="timer" style="font-size: 1.2rem; font-weight: 600; color: #dc2626;">
+                    <i class="fas fa-clock"></i> <span id="timeLeft">00:00</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section style="padding: 40px 0;">
+        <div class="container" style="max-width: 800px;">
+            <div class="card">
+                <div id="quizHeader" style="margin-bottom: 30px;">
+                    <h1 id="quizTitle">Quiz</h1>
+                    <p id="quizInfo" style="color: #64748b;"></p>
+                </div>
+
+                <div id="quizContent">
+                    <!-- Questions will be loaded here -->
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                    <button id="prevBtn" class="btn btn-secondary" onclick="previousQuestion()" style="display: none;">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button id="nextBtn" class="btn btn-primary" onclick="nextQuestion()">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button id="submitBtn" class="btn btn-primary" onclick="submitQuiz()" style="display: none;">
+                        <i class="fas fa-check"></i> Submit Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        let quiz, currentQuestion = 0, answers = {}, startTime, timerInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user || user.role !== 'student') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const quizId = parseInt(localStorage.getItem('currentQuizId'));
+            quiz = JSON.parse(localStorage.getItem('quizzes') || '[]').find(q => q.id === quizId);
+
+            if (!quiz) {
+                alert('Quiz not found');
+                window.location.href = 'student-quizzes.html';
+                return;
+            }
+
+            document.getElementById('quizTitle').textContent = quiz.title;
+            document.getElementById('quizInfo').textContent = `${quiz.subject} • ${quiz.questions.length} questions • ${quiz.timeLimit} minutes`;
+
+            startTime = Date.now();
+            startTimer(quiz.timeLimit * 60);
+            loadQuestion();
+        });
+
+        function startTimer(seconds) {
+            let timeLeft = seconds;
+            
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timeLeft').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Time is up!');
+                    submitQuiz();
+                }
+                timeLeft--;
+            }
+            
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function loadQuestion() {
+            const q = quiz.questions[currentQuestion];
+            const content = document.getElementById('quizContent');
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h3>Question ${currentQuestion + 1} of ${quiz.questions.length}</h3>
+                    <p style="font-size: 1.1rem; margin: 20px 0;">${q.question}</p>
+                </div>
+                <div style="display: grid; gap: 15px;">
+                    ${Object.entries(q.options).map(([key, value]) => `
+                        <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;"
+                               onmouseover="this.style.borderColor='#6d28d9'" 
+                               onmouseout="this.style.borderColor='#e5e7eb'">
+                            <input type="radio" name="answer" value="${key}" 
+                                   ${answers[currentQuestion] === key ? 'checked' : ''}
+                                   onchange="saveAnswer('${key}')"
+                                   style="margin-right: 10px; width: 20px; height: 20px;">
+                            <span style="font-size: 1rem;"><strong>${key}.</strong> ${value}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = currentQuestion < quiz.questions.length - 1 ? 'block' : 'none';
+            document.getElementById('submitBtn').style.display = currentQuestion === quiz.questions.length - 1 ? 'block' : 'none';
+        }
+
+        function saveAnswer(answer) {
+            answers[currentQuestion] = answer;
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quiz.questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+
+            const unanswered = quiz.questions.length - Object.keys(answers).length;
+            if (unanswered > 0) {
+                if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+                    return;
+                }
+            }
+
+            // Calculate score
+            let correct = 0;
+            quiz.questions.forEach((q, i) => {
+                if (answers[i] === q.correctAnswer) {
+                    correct++;
+                }
+            });
+
+            const score = Math.round((correct / quiz.questions.length) * 100);
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            // Save attempt
+            const attempt = {
+                id: Date.now(),
+                quizId: quiz.id,
+                studentId: user.id,
+                score: score,
+                correctAnswers: correct,
+                totalQuestions: quiz.questions.length,
+                answers: answers,
+                completedAt: new Date().toISOString()
+            };
+
+            const attempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]');
+            attempts.push(attempt);
+            localStorage.setItem('quizAttempts', JSON.stringify(attempts));
+
+            alert(`Quiz Completed!\n\nYour Score: ${score}%\nCorrect Answers: ${correct}/${quiz.questions.length}`);
+            window.location.href = 'student-quizzes.html';
+        }
+    </script>
+</body>
+</html>

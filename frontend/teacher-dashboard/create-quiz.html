@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="teacher-courses.html" class="nav-link">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link">Assignments</a>
+                <a href="create-quiz.html" class="nav-link active">Quizzes</a>
+                <a href="teacher-students.html" class="nav-link">Students</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="create-quiz" style="padding: 40px 0;">
+        <div class="container">
+            <div style="margin-bottom: 30px;">
+                <h1><i class="fas fa-clipboard-list"></i> Create New Quiz</h1>
+                <p>Design assessments for your students</p>
+            </div>
+            
+            <div class="card">
+                <form id="quizForm">
+                    <div class="form-group">
+                        <label for="quizTitle">Quiz Title</label>
+                        <input type="text" id="quizTitle" placeholder="e.g., Chapter 3 Review" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <select id="subject" required>
+                            <option value="">Select Subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Agriculture">Agriculture</option>
+                            <option value="Additional Mathematics">Additional Mathematics</option>
+                            <option value="ICT">ICT</option>
+                            <option value="History">History</option>
+                            <option value="Geography">Geography</option>
+                            <option value="Commerce">Commerce</option>
+                            <option value="Accounting">Accounting</option>
+                            <option value="Literature">Literature</option>
+                            <option value="CRE">CRE</option>
+                            <option value="Citizenship">Citizenship</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeLimit">Time Limit (minutes)</label>
+                        <input type="number" id="timeLimit" min="5" max="180" value="30" required>
+                    </div>
+                    
+                    <div id="questionsContainer" style="margin-top: 30px;">
+                        <h3>Questions</h3>
+                        <div class="question-item" style="border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label>Question 1</label>
+                                <textarea class="question-text" placeholder="Enter your question here..." rows="3" required></textarea>
+                            </div>
+                            <div style="display: grid; gap: 10px;">
+                                <input type="text" class="option-a" placeholder="Option A" required>
+                                <input type="text" class="option-b" placeholder="Option B" required>
+                                <input type="text" class="option-c" placeholder="Option C" required>
+                                <input type="text" class="option-d" placeholder="Option D" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Correct Answer</label>
+                                <select class="correct-answer" required>
+                                    <option value="">Select correct answer</option>
+                                    <option value="A">Option A</option>
+                                    <option value="B">Option B</option>
+                                    <option value="C">Option C</option>
+                                    <option value="D">Option D</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="button" id="addQuestion" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Question
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Quiz
+                        </button>
+                        <a href="teacher-dashboard.html" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        let questionCount = 1;
+        
+        document.getElementById('addQuestion').addEventListener('click', () => {
+            questionCount++;
+            const container = document.getElementById('questionsContainer');
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question-item';
+            newQuestion.style.cssText = 'border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;';
+            newQuestion.innerHTML = `
+                <div class="form-group">
+                    <label>Question ${questionCount}</label>
+                    <textarea class="question-text" placeholder="Enter your question here..." rows="3" required></textarea>
+                </div>
+                <div style="display: grid; gap: 10px;">
+                    <input type="text" class="option-a" placeholder="Option A" required>
+                    <input type="text" class="option-b" placeholder="Option B" required>
+                    <input type="text" class="option-c" placeholder="Option C" required>
+                    <input type="text" class="option-d" placeholder="Option D" required>
+                </div>
+                <div class="form-group">
+                    <label>Correct Answer</label>
+                    <select class="correct-answer" required>
+                        <option value="">Select correct answer</option>
+                        <option value="A">Option A</option>
+                        <option value="B">Option B</option>
+                        <option value="C">Option C</option>
+                        <option value="D">Option D</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove(); updateQuestionNumbers();">Remove</button>
+            `;
+            container.appendChild(newQuestion);
+        });
+        
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-item');
+            questions.forEach((q, i) => {
+                q.querySelector('label').textContent = `Question ${i + 1}`;
+            });
+            questionCount = questions.length;
+        }
+        
+        document.getElementById('quizForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user || user.role !== 'teacher') {
+                alert('Only teachers can create quizzes');
+                return;
+            }
+            
+            const questions = [];
+            document.querySelectorAll('.question-item').forEach((item, index) => {
+                questions.push({
+                    id: index + 1,
+                    question: item.querySelector('.question-text').value,
+                    options: {
+                        A: item.querySelector('.option-a').value,
+                        B: item.querySelector('.option-b').value,
+                        C: item.querySelector('.option-c').value,
+                        D: item.querySelector('.option-d').value
+                    },
+                    correctAnswer: item.querySelector('.correct-answer').value
+                });
+            });
+            
+            const quiz = {
+                id: Date.now(),
+                teacherId: user.id,
+                title: document.getElementById('quizTitle').value,
+                subject: document.getElementById('subject').value,
+                timeLimit: parseInt(document.getElementById('timeLimit').value),
+                questions: questions,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            const quizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
+            quizzes.push(quiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            
+            alert('Quiz created successfully!');
+            window.location.href = 'teacher-dashboard.html';
+        });
+    </script>
+</body>
+</html>

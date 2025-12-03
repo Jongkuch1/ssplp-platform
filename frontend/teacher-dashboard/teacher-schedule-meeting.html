@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Meeting - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/teacher-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .student-selector {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .student-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .student-checkbox:hover {
+            background: #f3f0ff;
+        }
+        .student-checkbox input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .student-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .student-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        .student-grade {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .select-all {
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .selected-count {
+            color: #6d28d9;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Home</a>
+                <a href="teacher-courses.html" class="nav-link">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link">Assignments</a>
+                <a href="teacher-students.html" class="nav-link">Students</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link">Analytics</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" id="profileBtn">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin">Logout</button>
+            </div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-calendar-plus"></i> Schedule Meeting</h1>
+            <p>Create a tutoring session and invite students</p>
+
+            <div class="card">
+                <form id="scheduleMeetingForm">
+                    <div class="form-group">
+                        <label>Meeting Title</label>
+                        <input type="text" id="meetingTitle" placeholder="e.g., Math Review Session" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="meetingSubject" required>
+                            <option value="">Choose subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="History">History</option>
+                            <option value="Geography">Geography</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date & Time</label>
+                        <input type="datetime-local" id="meetingDateTime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Duration (minutes)</label>
+                        <select id="meetingDuration" required>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>1 hour</option>
+                            <option value="90">1.5 hours</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Meeting Type</label>
+                        <select id="meetingType" required>
+                            <option value="individual">Individual (1-on-1)</option>
+                            <option value="group">Group Session</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Students to Invite</label>
+                        <div class="select-all">
+                            <input type="checkbox" id="selectAll"> Select All Students
+                        </div>
+                        <div class="student-selector" id="studentList">
+                            <!-- Students loaded here -->
+                        </div>
+                        <div class="selected-count" id="selectedCount">0 students selected</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Meeting Description (Optional)</label>
+                        <textarea id="meetingDescription" rows="3" placeholder="What will you cover in this session?"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-calendar-check"></i> Schedule Meeting
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-calendar"></i> Your Scheduled Meetings</h2>
+                <div id="scheduledMeetings"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/app.js"></script>
+    <script>
+        // Load students
+        function loadStudents() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            
+            const container = document.getElementById('studentList');
+            container.innerHTML = students.map(s => `
+                <label class="student-checkbox">
+                    <input type="checkbox" class="student-check" value="${s.id}" data-name="${s.name}">
+                    <div class="student-info">
+                        <span class="student-name">${s.name}</span>
+                        <span class="student-grade">Grade ${s.grade || 'N/A'}</span>
+                    </div>
+                </label>
+            `).join('') || '<p>No students found</p>';
+
+            updateSelectedCount();
+        }
+
+        // Select all functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.student-check');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
+        });
+
+        // Update selected count
+        function updateSelectedCount() {
+            const selected = document.querySelectorAll('.student-check:checked').length;
+            document.getElementById('selectedCount').textContent = `${selected} student${selected !== 1 ? 's' : ''} selected`;
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('student-check')) {
+                updateSelectedCount();
+            }
+        });
+
+        // Schedule meeting
+        document.getElementById('scheduleMeetingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const selectedStudents = Array.from(document.querySelectorAll('.student-check:checked'))
+                .map(cb => ({ id: cb.value, name: cb.dataset.name }));
+
+            if (selectedStudents.length === 0) {
+                alert('Please select at least one student');
+                return;
+            }
+
+            const teacher = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const meeting = {
+                id: Date.now(),
+                teacherId: teacher.id,
+                teacherName: teacher.name,
+                title: document.getElementById('meetingTitle').value,
+                subject: document.getElementById('meetingSubject').value,
+                datetime: document.getElementById('meetingDateTime').value,
+                duration: document.getElementById('meetingDuration').value,
+                type: document.getElementById('meetingType').value,
+                description: document.getElementById('meetingDescription').value,
+                students: selectedStudents,
+                meetLink: 'https://meet.google.com/zce-wnss-vvr',
+                status: 'scheduled',
+                createdAt: new Date().toISOString()
+            };
+
+            // Save meeting
+            let meetings = JSON.parse(localStorage.getItem('scheduledMeetings') || '[]');
+            meetings.push(meeting);
+            localStorage.setItem('scheduledMeetings', JSON.stringify(meetings));
+
+            // Create bookings for each student
+            let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            selectedStudents.forEach(student => {
+                const studentUser = allUsers.find(u => u.id == student.id);
+                bookings.push({
+                    id: Date.now() + Math.random(),
+                    studentId: student.id,
+                    studentName: student.name,
+                    studentEmail: studentUser ? studentUser.email : '',
+                    teacherId: teacher.id,
+                    teacherName: teacher.name,
+                    subject: meeting.subject,
+                    datetime: meeting.datetime,
+                    type: meeting.type,
+                    meetLink: meeting.meetLink,
+                    status: 'scheduled',
+                    title: meeting.title,
+                    description: meeting.description
+                });
+            });
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            console.log('Bookings created:', bookings);
+
+            alert(`Meeting scheduled successfully with ${selectedStudents.length} student(s)!`);
+            this.reset();
+            loadStudents();
+            loadScheduledMeetings();
+        });
+
+        // Load scheduled meetings
+        function loadScheduledMeetings() {
+            const teacher = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const meetings = JSON.parse(localStorage.getItem('scheduledMeetings') || '[]')
+                .filter(m => m.teacherId === teacher.id)
+                .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+
+            const container = document.getElementById('scheduledMeetings');
+            container.innerHTML = meetings.length ? meetings.map(m => `
+                <div class="meeting-card" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="margin: 0 0 5px 0;">${m.title}</h3>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-book"></i> ${m.subject}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-clock"></i> ${new Date(m.datetime).toLocaleString()}</p>
+                            <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-users"></i> ${m.students.length} student(s): ${m.students.map(s => s.name).join(', ')}</p>
+                            ${m.description ? `<p style="margin: 10px 0 0 0;">${m.description}</p>` : ''}
+                        </div>
+                        <div>
+                            <a href="${m.meetLink}" target="_blank" class="btn btn-primary" style="white-space: nowrap;">
+                                <i class="fas fa-video"></i> Join
+                            </a>
+                            <button onclick="cancelMeeting(${m.id})" class="btn btn-secondary" style="margin-top: 5px;">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('') : '<p>No scheduled meetings</p>';
+        }
+
+        // Cancel meeting
+        function cancelMeeting(meetingId) {
+            if (!confirm('Cancel this meeting?')) return;
+
+            let meetings = JSON.parse(localStorage.getItem('scheduledMeetings') || '[]');
+            meetings = meetings.filter(m => m.id !== meetingId);
+            localStorage.setItem('scheduledMeetings', JSON.stringify(meetings));
+
+            loadScheduledMeetings();
+            alert('Meeting cancelled');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudents();
+            loadScheduledMeetings();
+        });
+    </script>
+</body>
+</html>

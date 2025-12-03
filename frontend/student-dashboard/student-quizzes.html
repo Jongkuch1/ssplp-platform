@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzes - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="student-dashboard.html" class="nav-link">Home</a>
+                <a href="subjects.html" class="nav-link">Subjects</a>
+                <a href="student-quizzes.html" class="nav-link active">Quizzes</a>
+                <a href="student-assignments.html" class="nav-link">Assignments</a>
+                <a href="tutoring.html" class="nav-link">Tutoring</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin">Logout</button>
+            </div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="quizzes" style="padding: 40px 0;">
+        <div class="container">
+            <div style="margin-bottom: 30px;">
+                <h1><i class="fas fa-clipboard-list"></i> Available Quizzes</h1>
+                <p>Test your knowledge and track your progress</p>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3 id="totalQuizzes">0</h3>
+                    <p>Available Quizzes</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 id="completedQuizzes">0</h3>
+                    <p>Completed</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="avgScore">0%</h3>
+                    <p>Average Score</p>
+                </div>
+            </div>
+
+            <div id="quizzesList" style="display: grid; gap: 20px;">
+                <!-- Quizzes will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/core/app.js"></script>
+    <script src="js/load-profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            translatePage();
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user || user.role !== 'student') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load profile picture
+            if (user.profilePicture) {
+                document.getElementById('navProfilePic').src = user.profilePicture;
+            }
+
+            const quizzes = JSON.parse(localStorage.getItem('quizzes') || '[]').filter(q => q.status === 'active');
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]').filter(a => a.studentId === user.id);
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // Update stats
+            document.getElementById('totalQuizzes').textContent = quizzes.length;
+            document.getElementById('completedQuizzes').textContent = quizAttempts.length;
+            
+            if (quizAttempts.length > 0) {
+                const avgScore = Math.round(quizAttempts.reduce((sum, a) => sum + a.score, 0) / quizAttempts.length);
+                document.getElementById('avgScore').textContent = avgScore + '%';
+            }
+
+            const container = document.getElementById('quizzesList');
+
+            if (quizzes.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 20px;"></i>
+                        <h3>No Quizzes Available</h3>
+                        <p style="color: #64748b;">Your teacher hasn't posted any quizzes yet. Check back later!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = quizzes.map(quiz => {
+                const teacher = users.find(u => u.id === quiz.teacherId);
+                const attempt = quizAttempts.find(a => a.quizId === quiz.id);
+                
+                return `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 20px;">
+                            <div style="flex: 1;">
+                                <h3 style="margin: 0 0 10px 0;">${quiz.title}</h3>
+                                <p style="color: #64748b; margin: 5px 0;">
+                                    <i class="fas fa-book"></i> ${quiz.subject}
+                                </p>
+                                <p style="color: #64748b; margin: 5px 0;">
+                                    <i class="fas fa-user"></i> ${teacher ? teacher.name : 'Teacher'}
+                                </p>
+                                <p style="color: #64748b; margin: 5px 0;">
+                                    <i class="fas fa-question-circle"></i> ${quiz.questions.length} questions
+                                </p>
+                                <p style="color: #64748b; margin: 5px 0;">
+                                    <i class="fas fa-clock"></i> ${quiz.timeLimit} minutes
+                                </p>
+                                ${attempt ? `
+                                    <div style="margin-top: 10px; padding: 10px; background: ${attempt.score >= 80 ? '#dcfce7' : attempt.score >= 60 ? '#fef9c3' : '#fee2e2'}; border-radius: 6px;">
+                                        <strong>Your Score: ${attempt.score}%</strong>
+                                        <p style="margin: 5px 0; font-size: 0.9rem;">Completed on ${new Date(attempt.completedAt).toLocaleDateString()}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div>
+                                ${attempt ? 
+                                    `<button class="btn btn-secondary" onclick="viewResults(${quiz.id})">
+                                        <i class="fas fa-eye"></i> View Results
+                                    </button>` :
+                                    `<button class="btn btn-primary" onclick="startQuiz(${quiz.id})">
+                                        <i class="fas fa-play"></i> Start Quiz
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        });
+
+        function startQuiz(quizId) {
+            localStorage.setItem('currentQuizId', quizId);
+            window.location.href = 'take-quiz.html';
+        }
+
+        function viewResults(quizId) {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const attempt = JSON.parse(localStorage.getItem('quizAttempts') || '[]')
+                .find(a => a.quizId === quizId && a.studentId === user.id);
+            
+            if (attempt) {
+                alert(`Quiz Results\n\nScore: ${attempt.score}%\nCorrect: ${attempt.correctAnswers}/${attempt.totalQuestions}\nCompleted: ${new Date(attempt.completedAt).toLocaleString()}`);
+            }
+        }
+    </script>
+</body>
+</html>

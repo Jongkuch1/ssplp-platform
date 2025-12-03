@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress - Student Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="student-dashboard.html" class="nav-link" data-i18n="home">Home</a>
+                <a href="subjects.html" class="nav-link" data-i18n="subjects">Subjects</a>
+                <a href="student-quizzes.html" class="nav-link" data-i18n="quizzes">Quizzes</a>
+                <a href="student-assignments.html" class="nav-link" data-i18n="assignments">Assignments</a>
+                <a href="tutoring.html" class="nav-link" data-i18n="tutoring">Tutoring</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="progress.html" class="nav-link active" data-i18n="progress">Progress</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary">
+                    <i class="fas fa-user"></i>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1>My Progress</h1>
+            <p>Track your learning journey</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h3 id="completedQuizzes">0</h3>
+                    <p>Quizzes Completed</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="averageScore">0%</h3>
+                    <p>Average Score</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-book"></i>
+                    <h3 id="subjectsStudied">0</h3>
+                    <p>Subjects Studied</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3 id="timeSpent">0h</h3>
+                    <p>Time Spent</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Recent Quiz Results</h3>
+                <div id="recentQuizzes"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/core/app.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/load-profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            translatePage();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]');
+            const userAttempts = quizAttempts.filter(q => q.studentId === currentUser.id);
+            
+            document.getElementById('completedQuizzes').textContent = userAttempts.length;
+            
+            if (userAttempts.length > 0) {
+                const avgScore = Math.round(userAttempts.reduce((sum, q) => sum + q.score, 0) / userAttempts.length);
+                document.getElementById('averageScore').textContent = avgScore + '%';
+                
+                const subjects = [...new Set(userAttempts.map(q => q.subject))];
+                document.getElementById('subjectsStudied').textContent = subjects.length;
+            }
+            
+            document.getElementById('recentQuizzes').innerHTML = userAttempts.slice(-5).reverse().map(q => `
+                <div style="padding: 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
+                    <div>
+                        <strong>${q.subject}</strong>
+                        <p style="color: #6b7280; margin: 5px 0;">${new Date(q.completedAt).toLocaleDateString()}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong style="color: ${q.score >= 70 ? '#10b981' : '#ef4444'}; font-size: 24px;">${q.score}%</strong>
+                    </div>
+                </div>
+            `).join('') || '<p>No quiz attempts yet</p>';
+        });
+    </script>
+</body>
+</html>

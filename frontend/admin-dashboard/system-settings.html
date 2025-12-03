@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="admin-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="admin-dashboard.html" class="nav-link">Home</a>
+                <a href="admin-users.html" class="nav-link">Users</a>
+                <a href="admin-content.html" class="nav-link">Content Approval</a>
+                <a href="admin-reports.html" class="nav-link">Reports</a>
+                <a href="admin-settings.html" class="nav-link active">System Settings</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-cog"></i> System Settings</h1>
+            
+            <div class="card">
+                <h2>Notification Settings</h2>
+                <form id="notificationForm">
+                    <div class="form-group">
+                        <label>SMS Provider</label>
+                        <select id="smsProvider">
+                            <option value="twilio">Twilio</option>
+                            <option value="africastalking">Africa's Talking</option>
+                            <option value="nexmo">Nexmo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Provider</label>
+                        <select id="emailProvider">
+                            <option value="sendgrid">SendGrid</option>
+                            <option value="mailgun">Mailgun</option>
+                            <option value="ses">AWS SES</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notificationsEnabled">
+                            Enable Notifications
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Security Settings</h2>
+                <form id="securityForm">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="encryptionEnabled">
+                            Enable Data Encryption
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Max Login Attempts</label>
+                        <input type="number" id="maxLoginAttempts" min="1" max="10" value="3">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Session Timeout (minutes)</label>
+                        <input type="number" id="sessionTimeout" min="5" max="120" value="60">
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Performance Settings</h2>
+                <div class="settings-info">
+                    <div class="info-item">
+                        <strong>Target Uptime:</strong> 99% (NFR04)
+                    </div>
+                    <div class="info-item">
+                        <strong>Max Concurrent Users:</strong> 5,000+ (NFR06)
+                    </div>
+                    <div class="info-item">
+                        <strong>Page Load Target:</strong> < 3 seconds (NFR01)
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveSettings()">
+                <i class="fas fa-save"></i> Save Settings
+            </button>
+        </div>
+    </section>
+
+    <script src="js/universal.js"></script>
+    <script src="js/admin-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        function loadSettings() {
+            const settings = AdminFeatures.getSettings();
+            
+            document.getElementById('smsProvider').value = settings.smsProvider;
+            document.getElementById('emailProvider').value = settings.emailProvider;
+            document.getElementById('notificationsEnabled').checked = settings.notificationsEnabled;
+            document.getElementById('encryptionEnabled').checked = settings.encryptionEnabled;
+            document.getElementById('maxLoginAttempts').value = settings.maxLoginAttempts;
+            document.getElementById('sessionTimeout').value = settings.sessionTimeout / 60000;
+        }
+
+        function saveSettings() {
+            const settings = {
+                smsProvider: document.getElementById('smsProvider').value,
+                emailProvider: document.getElementById('emailProvider').value,
+                notificationsEnabled: document.getElementById('notificationsEnabled').checked,
+                encryptionEnabled: document.getElementById('encryptionEnabled').checked,
+                maxLoginAttempts: parseInt(document.getElementById('maxLoginAttempts').value),
+                sessionTimeout: parseInt(document.getElementById('sessionTimeout').value) * 60000
+            };
+            
+            AdminFeatures.updateSettings(settings);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
+</body>
+</html>

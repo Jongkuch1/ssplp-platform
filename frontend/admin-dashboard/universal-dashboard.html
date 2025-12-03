@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSPLP Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/universal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search..." aria-label="Search">
+                <i class="fas fa-search search-icon"></i>
+                <div class="search-dropdown"></div>
+            </div>
+        </div>
+        
+        <div class="top-bar-right">
+            <button class="top-bar-btn notif-btn" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notif-badge">0</span>
+            </button>
+            
+            <button class="top-bar-btn settings-btn" aria-label="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+            
+            <button class="top-bar-btn lang-btn" aria-label="Language">
+                <i class="fas fa-globe"></i>
+            </button>
+            
+            <button class="top-bar-btn profile-btn" aria-label="Profile">
+                <i class="fas fa-user-circle"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notif-panel"></div>
+
+    <!-- Profile Menu -->
+    <div class="profile-menu">
+        <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+        <a href="#" onclick="event.preventDefault(); logout();"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Language Menu -->
+    <div class="lang-menu">
+        <div class="lang-option active" onclick="Universal.switchLanguage('en')">English</div>
+        <div class="lang-option" onclick="Universal.switchLanguage('ar')">العربية</div>
+        <div class="lang-option" onclick="Universal.switchLanguage('local')">Local</div>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-menu" id="sidebarMenu">
+            <!-- Role-based menu items will be injected here -->
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div id="dashboardContent">
+            <!-- Page-specific content goes here -->
+        </div>
+    </main>
+
+    <script src="js/universal.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Role-based sidebar menu
+        function initRoleBasedMenu() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const role = user.role || 'student';
+            
+            const menus = {
+                student: [
+                    { icon: 'home', label: 'Home', url: 'student-dashboard.html' },
+                    { icon: 'book', label: 'Subjects', url: 'subjects.html' },
+                    { icon: 'clipboard-list', label: 'Quizzes', url: 'quizzes.html' },
+                    { icon: 'chalkboard-teacher', label: 'Tutoring', url: 'tutoring.html' },
+                    { icon: 'envelope', label: 'Messages', url: 'messaging.html' },
+                    { icon: 'chart-line', label: 'Progress', url: 'progress.html' }
+                ],
+                teacher: [
+                    { icon: 'home', label: 'Home', url: 'teacher-dashboard.html' },
+                    { icon: 'book-open', label: 'Courses', url: 'teacher-courses.html' },
+                    { icon: 'tasks', label: 'Assignments', url: 'teacher-assignments.html' },
+                    { icon: 'users', label: 'Students', url: 'teacher-students.html' },
+                    { icon: 'envelope', label: 'Messages', url: 'messaging.html' },
+                    { icon: 'chart-bar', label: 'Analytics', url: 'teacher-analytics.html' }
+                ],
+                admin: [
+                    { icon: 'home', label: 'Home', url: 'admin-dashboard.html' },
+                    { icon: 'users-cog', label: 'Users', url: 'admin-users.html' },
+                    { icon: 'check-circle', label: 'Content Approval', url: 'admin-content.html' },
+                    { icon: 'file-alt', label: 'Reports', url: 'admin-reports.html' },
+                    { icon: 'cog', label: 'System Settings', url: 'admin-settings.html' }
+                ]
+            };
+            
+            const menuItems = menus[role] || menus.student;
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            document.getElementById('sidebarMenu').innerHTML = menuItems.map(item => `
+                <a href="${item.url}" class="sidebar-item ${currentPage === item.url ? 'active' : ''}">
+                    <i class="fas fa-${item.icon}"></i>
+                    <span>${item.label}</span>
+                </a>
+            `).join('');
+        }
+
+        function logout() {
+            Universal.showConfirm('Are you sure you want to logout?', () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initRoleBasedMenu();
+        });
+    </script>
+</body>
+</html>

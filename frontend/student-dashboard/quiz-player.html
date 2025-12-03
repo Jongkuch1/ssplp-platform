@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Player - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/student-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="student-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="student-dashboard.html" class="nav-link">Home</a>
+                <a href="subjects.html" class="nav-link">Subjects</a>
+                <a href="quizzes.html" class="nav-link active">Quizzes</a>
+                <a href="tutoring.html" class="nav-link">Tutoring</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+                <a href="progress.html" class="nav-link">Progress</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <div class="card">
+                <div class="quiz-header">
+                    <h2 id="quizTitle">Quiz</h2>
+                    <div class="quiz-info">
+                        <span id="questionCounter">Question 1 of 10</span>
+                        <span id="offlineIndicator" style="display: none; color: #f59e0b;">
+                            <i class="fas fa-wifi-slash"></i> Offline Mode
+                        </span>
+                    </div>
+                </div>
+
+                <div id="quizContent" class="quiz-content">
+                    <div class="question-card">
+                        <h3 id="questionText"></h3>
+                        <div id="optionsContainer" class="options-list"></div>
+                    </div>
+
+                    <div class="quiz-actions">
+                        <button id="prevBtn" class="btn btn-secondary" disabled>Previous</button>
+                        <button id="nextBtn" class="btn btn-primary">Next</button>
+                        <button id="submitBtn" class="btn btn-primary" style="display: none;">Submit Quiz</button>
+                    </div>
+                </div>
+
+                <div id="quizResults" class="quiz-results" style="display: none;">
+                    <h2>Quiz Complete!</h2>
+                    <div class="result-score">
+                        <h1 id="finalScore">0%</h1>
+                        <p id="resultMessage"></p>
+                    </div>
+                    <div class="result-actions">
+                        <a href="quizzes.html" class="btn btn-primary">Back to Quizzes</a>
+                        <button id="reviewBtn" class="btn btn-secondary">Review Answers</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/universal.js"></script>
+    <script src="js/student-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // FR12: Quiz Player with Autosave
+        let currentQuestionIndex = 0;
+        let quiz = null;
+
+        function initQuiz() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizId = urlParams.get('id') || 'math1';
+            
+            quiz = StudentFeatures.startQuiz(quizId);
+            document.getElementById('quizTitle').textContent = quiz.title;
+            
+            if (!navigator.onLine) {
+                document.getElementById('offlineIndicator').style.display = 'inline';
+            }
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quiz.questions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.text;
+            document.getElementById('questionCounter').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${quiz.questions.length}`;
+            
+            const optionsHtml = question.options.map((opt, idx) => `
+                <label class="option-item">
+                    <input type="radio" name="answer" value="${idx}" 
+                        onchange="saveAnswer(${question.id}, ${idx})">
+                    <span>${opt}</span>
+                </label>
+            `).join('');
+            
+            document.getElementById('optionsContainer').innerHTML = optionsHtml;
+            
+            // Restore saved answer
+            const saved = JSON.parse(localStorage.getItem('currentQuiz') || '{}');
+            if (saved.answers && saved.answers[question.id] !== undefined) {
+                const radio = document.querySelector(`input[value="${saved.answers[question.id]}"]`);
+                if (radio) radio.checked = true;
+            }
+            
+            updateButtons();
+        }
+
+        function saveAnswer(questionId, answer) {
+            StudentFeatures.saveQuizAnswer(questionId, answer);
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === quiz.questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentQuestionIndex < quiz.questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const result = StudentFeatures.submitQuiz();
+            showResults(result);
+        });
+
+        function showResults(result) {
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'block';
+            document.getElementById('finalScore').textContent = result.score + '%';
+            
+            const message = result.score >= 80 ? 'Excellent work!' :
+                           result.score >= 60 ? 'Good job!' :
+                           'Keep practicing!';
+            document.getElementById('resultMessage').textContent = message;
+            
+            if (!result.synced) {
+                Universal.showToast('Results will sync when online', 'warning');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>

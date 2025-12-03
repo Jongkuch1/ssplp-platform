@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Subjects - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .teacher-list { display: grid; gap: 20px; }
+        .teacher-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+        .subject-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .subject-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .subject-checkbox input { width: 18px; height: 18px; cursor: pointer; }
+        .assigned-subjects {
+            background: #f3f0ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="admin-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="admin-dashboard.html" class="nav-link">Home</a>
+                <a href="admin-users.html" class="nav-link">Users</a>
+                <a href="admin-content.html" class="nav-link">Content Approval</a>
+                <a href="admin-reports.html" class="nav-link">Reports</a>
+                <a href="admin-settings.html" class="nav-link">System Settings</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-chalkboard-teacher"></i> Assign Subjects to Teachers</h1>
+            <p>Assign 3-5 subjects to each teacher</p>
+
+            <div class="card">
+                <div class="teacher-list" id="teacherList"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/seed-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        const subjects = [
+            'Mathematics', 'English', 'Physics', 'Chemistry', 'Biology',
+            'History', 'Geography', 'Commerce', 'Accounting', 'ICT',
+            'Agriculture', 'Literature', 'Religion', 'Citizenship', 'Additional Mathematics'
+        ];
+
+        function loadTeachers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const teachers = users.filter(u => u.role === 'teacher');
+
+            document.getElementById('teacherList').innerHTML = teachers.map(t => `
+                <div class="teacher-item">
+                    <h3>${t.name}</h3>
+                    <p style="color: #6b7280;">${t.email}</p>
+                    
+                    <div class="assigned-subjects">
+                        <strong>Currently Assigned:</strong> ${(t.subjects || []).join(', ') || 'None'}
+                    </div>
+
+                    <div class="subject-checkboxes">
+                        ${subjects.map(s => `
+                            <label class="subject-checkbox">
+                                <input type="checkbox" 
+                                    value="${s}" 
+                                    ${(t.subjects || []).includes(s) ? 'checked' : ''}
+                                    onchange="updateSubjects(${t.id}, this)">
+                                <span>${s}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+
+                    <button onclick="saveTeacherSubjects(${t.id})" class="btn btn-primary" style="margin-top: 15px;">
+                        <i class="fas fa-save"></i> Save Subjects
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateSubjects(teacherId, checkbox) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const teacher = users.find(u => u.id === teacherId);
+            
+            if (!teacher.subjects) teacher.subjects = [];
+            
+            if (checkbox.checked) {
+                if (!teacher.subjects.includes(checkbox.value)) {
+                    teacher.subjects.push(checkbox.value);
+                }
+            } else {
+                teacher.subjects = teacher.subjects.filter(s => s !== checkbox.value);
+            }
+        }
+
+        function saveTeacherSubjects(teacherId) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const teacher = users.find(u => u.id === teacherId);
+            
+            if (!teacher.subjects || teacher.subjects.length < 3) {
+                alert('Please assign at least 3 subjects');
+                return;
+            }
+            
+            if (teacher.subjects.length > 5) {
+                alert('Maximum 5 subjects allowed');
+                return;
+            }
+
+            localStorage.setItem('users', JSON.stringify(users));
+            alert(`Subjects saved for ${teacher.name}!`);
+            loadTeachers();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTeachers);
+    </script>
+</body>
+</html>

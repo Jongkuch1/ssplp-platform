@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Builder - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/teacher-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Home</a>
+                <a href="teacher-courses.html" class="nav-link active">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link">Assignments</a>
+                <a href="teacher-students.html" class="nav-link">Students</a>
+                <a href="messaging.html" class="nav-link">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link">Analytics</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-plus-circle"></i> Create Course</h1>
+            
+            <div class="card">
+                <form id="courseForm">
+                    <div class="form-group">
+                        <label>Course Title *</label>
+                        <input type="text" id="courseTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select id="courseSubject" required>
+                            <option value="">Select subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Grade Level *</label>
+                        <select id="courseGrade" required>
+                            <option value="">Select grade</option>
+                            <option value="9">Grade 9</option>
+                            <option value="10">Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="courseDescription" rows="4"></textarea>
+                    </div>
+
+                    <h3>Modules</h3>
+                    <div id="modulesContainer"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addModule()">
+                        <i class="fas fa-plus"></i> Add Module
+                    </button>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Create Course</button>
+                        <a href="teacher-courses.html" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/universal.js"></script>
+    <script src="js/teacher-features.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let moduleCount = 0;
+
+        function addModule() {
+            moduleCount++;
+            const container = document.getElementById('modulesContainer');
+            const moduleDiv = document.createElement('div');
+            moduleDiv.className = 'module-item';
+            moduleDiv.innerHTML = `
+                <div class="module-header">
+                    <h4>Module ${moduleCount}</h4>
+                    <button type="button" class="btn-icon" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <input type="text" placeholder="Module title" class="module-title" required>
+                </div>
+                <div class="form-group">
+                    <textarea placeholder="Module description" class="module-description" rows="2"></textarea>
+                </div>
+            `;
+            container.appendChild(moduleDiv);
+        }
+
+        document.getElementById('courseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const modules = Array.from(document.querySelectorAll('.module-item')).map(m => ({
+                title: m.querySelector('.module-title').value,
+                description: m.querySelector('.module-description').value
+            }));
+
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+            const newCourse = {
+                id: Date.now(),
+                teacherId: user.id,
+                title: document.getElementById('courseTitle').value,
+                subject: document.getElementById('courseSubject').value,
+                grade: document.getElementById('courseGrade').value,
+                description: document.getElementById('courseDescription').value,
+                modules,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            courses.push(newCourse);
+            localStorage.setItem('courses', JSON.stringify(courses));
+            
+            alert('Course created successfully!');
+            window.location.href = 'teacher-courses.html';
+        });
+
+        // Add first module by default
+        addModule();
+    </script>
+</body>
+</html>

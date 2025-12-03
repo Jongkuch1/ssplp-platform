@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link" data-i18n="home">Home</a>
+                <a href="teacher-courses.html" class="nav-link" data-i18n="courses">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link active" data-i18n="assignments">Assignments</a>
+                <a href="teacher-students.html" class="nav-link" data-i18n="students">Students</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link" data-i18n="analytics">Analytics</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                    <div id="navProfilePic" style="width: 32px; height: 32px; border-radius: 50%; background: #6d28d9; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid #6d28d9;">T</div>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-file-alt"></i> <span data-i18n="assignments">Assignments</span></h1>
+            <p data-i18n="createManageAssignments">Create and manage student assignments</p>
+
+            <div class="card">
+                <a href="assignment-builder.html" class="btn btn-primary" style="margin-bottom: 20px;">
+                    <i class="fas fa-plus"></i> <span data-i18n="createNewAssignment">Create New Assignment</span>
+                </a>
+                
+                <h2 data-i18n="yourAssignments">Your Assignments</h2>
+                <div id="assignmentsList" class="activity-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            const profilePic = document.getElementById('navProfilePic');
+            if (user.profilePic) {
+                profilePic.innerHTML = `<img src="${user.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                profilePic.textContent = initials;
+            }
+            
+            const assignments = JSON.parse(localStorage.getItem('assignments') || '[]')
+                .filter(a => a.teacherId === user.id)
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            const container = document.getElementById('assignmentsList');
+            
+            if (assignments.length === 0) {
+                container.innerHTML = '<p data-i18n="noAssignmentsYet">No assignments yet. Create your first assignment!</p>';
+            } else {
+                container.innerHTML = assignments.map(assignment => {
+                    const assignmentSubmissions = submissions.filter(s => s.assignmentId === assignment.id);
+                    const dueDate = new Date(assignment.dueDate);
+                    const isPast = dueDate < new Date();
+                    
+                    return `
+                        <div class="activity-item">
+                            <i class="fas fa-file-alt" style="color: ${isPast ? '#ef4444' : '#2563eb'};"></i>
+                            <div style="flex: 1;">
+                                <strong>${assignment.title}</strong>
+                                <p style="color: #6b7280; margin: 5px 0 0 0;">
+                                    <span data-i18n="subject">Subject</span>: ${assignment.subject} • 
+                                    <span data-i18n="due">Due</span>: ${dueDate.toLocaleDateString()} • 
+                                    ${assignmentSubmissions.length} <span data-i18n="submissions">submissions</span> • 
+                                    ${assignment.totalPoints} <span data-i18n="points">points</span>
+                                </p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="viewAssignment(${assignment.id})">
+                                <span data-i18n="view">View</span>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            translatePage();
+        });
+        
+        function viewAssignment(id) {
+            alert('Assignment details view - Coming soon!');
+        }
+        
+        // Mobile menu toggle
+        document.getElementById('navToggle')?.addEventListener('click', () => {
+            document.querySelector('.nav-menu')?.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

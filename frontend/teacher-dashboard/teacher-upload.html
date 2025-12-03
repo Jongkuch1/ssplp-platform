@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Content - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="teacher-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="teacher-upload.html" class="nav-link active">Upload Content</a>
+            </div>
+            <button id="logoutBtn" class="btn-signin">Logout</button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-upload"></i> Upload Learning Materials</h1>
+            <p>Upload videos, audio, PDFs, and documents for students</p>
+
+            <div class="card">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label>Content Type</label>
+                        <select id="contentType" required>
+                            <option value="">Select Type</option>
+                            <option value="video">Video</option>
+                            <option value="audio">Audio</option>
+                            <option value="pdf">PDF Document</option>
+                            <option value="document">Text Document</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="subject" required>
+                            <option value="">Select Subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>File</label>
+                        <input type="file" id="file" accept="video/*,audio/*,.pdf,.doc,.docx" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload Content</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Your Uploaded Content</h2>
+                <div id="uploadedList"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user || user.role !== 'teacher') window.location.href = 'login.html';
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const file = document.getElementById('file').files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const uploads = JSON.parse(localStorage.getItem('teacherUploads') || '[]');
+                uploads.push({
+                    id: Date.now(),
+                    teacherId: user.id,
+                    type: document.getElementById('contentType').value,
+                    subject: document.getElementById('subject').value,
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    fileName: file.name,
+                    fileData: event.target.result,
+                    uploadedAt: Date.now()
+                });
+                localStorage.setItem('teacherUploads', JSON.stringify(uploads));
+                alert('Content uploaded successfully!');
+                location.reload();
+            };
+            
+            reader.readAsDataURL(file);
+        });
+
+        const uploads = JSON.parse(localStorage.getItem('teacherUploads') || '[]')
+            .filter(u => u.teacherId === user.id);
+        
+        document.getElementById('uploadedList').innerHTML = uploads.map(u => `
+            <div class="activity-item">
+                <i class="fas fa-${u.type === 'video' ? 'video' : u.type === 'audio' ? 'music' : 'file-pdf'}"></i>
+                <div>
+                    <strong>${u.title}</strong>
+                    <p>${u.subject} - ${u.type}</p>
+                    <small>${new Date(u.uploadedAt).toLocaleDateString()}</small>
+                </div>
+            </div>
+        `).join('') || '<p>No uploads yet</p>';
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Management - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu"></div>
+            <button class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="content-management">
+        <div class="container">
+            <h1><i class="fas fa-folder-open"></i> Content Management</h1>
+            <p>Upload and manage learning materials for students</p>
+
+            <div class="content-grid">
+                <div class="card">
+                    <h2><i class="fas fa-upload"></i> Upload Content</h2>
+                    <form id="uploadForm">
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="contentSubject" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Content Title</label>
+                            <input type="text" id="contentTitle" placeholder="e.g., Introduction to Algebra" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Content Type</label>
+                            <select id="contentType" required>
+                                <option value="lesson">Lesson</option>
+                                <option value="video">Video</option>
+                                <option value="document">Document</option>
+                                <option value="exercise">Exercise</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="contentDescription" rows="4" placeholder="Brief description of the content"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-upload"></i> Upload Content
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-list"></i> My Content</h2>
+                    <div id="contentList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script src="js/content-management.js"></script>
+</body>
+</html>

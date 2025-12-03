@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="admin-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="admin-dashboard.html" class="nav-link">Home</a>
+                <a href="admin-users.html" class="nav-link">Users</a>
+                <a href="admin-content.html" class="nav-link">Content Approval</a>
+                <a href="admin-reports.html" class="nav-link">Reports</a>
+                <a href="admin-settings.html" class="nav-link active">System Settings</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" id="profileBtn" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                    <div id="navProfilePic" style="width: 32px; height: 32px; border-radius: 50%; background: #6d28d9; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid #6d28d9;">A</div>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <h1><i class="fas fa-cog"></i> System Settings</h1>
+            <p>Configure platform settings and preferences</p>
+
+            <div class="card">
+                <h2>General Settings</h2>
+                <div class="info-list">
+                    <div class="info-item">
+                        <strong>Platform Name:</strong> SSPLP
+                    </div>
+                    <div class="info-item">
+                        <strong>Version:</strong> 1.0.0
+                    </div>
+                    <div class="info-item">
+                        <strong>Status:</strong> Production Ready
+                    </div>
+                    <div class="info-item">
+                        <strong>Offline Mode:</strong> Enabled
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Configuration Options</h2>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <i class="fas fa-database" style="color: #2563eb;"></i>
+                        <div>
+                            <strong>Database Management</strong>
+                            <p>Backup and restore system data</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Configure</button>
+                    </div>
+                    <div class="activity-item">
+                        <i class="fas fa-shield-alt" style="color: #10b981;"></i>
+                        <div>
+                            <strong>Security Settings</strong>
+                            <p>Manage authentication and permissions</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Configure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/i18n.js"></script>
+    <script src="js/core/app.js"></script>
+    <script>
+        // Check authentication
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        // Load profile picture
+        const profilePic = document.getElementById('navProfilePic');
+        if (currentUser && currentUser.profilePic) {
+            profilePic.innerHTML = `<img src="${currentUser.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        } else if (currentUser && currentUser.name) {
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            profilePic.textContent = initials;
+        }
+        
+        if (!currentUser || currentUser.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

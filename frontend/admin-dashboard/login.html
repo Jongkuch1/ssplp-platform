@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - SSPLP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-card">
+                <h2 data-i18n="welcomeBack">Welcome Back</h2>
+                <p data-i18n="signInToAccount">Sign in to your account</p>
+                
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="email" data-i18n="emailAddress">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" data-i18n="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" data-i18n="signIn">Sign In</button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p><span data-i18n="dontHaveAccount">Don't have an account?</span> <a href="register.html" data-i18n="signUpHere">Sign up here</a></p>
+                    <p><a href="index.html" class="nav-link" data-i18n="backToHome">Back to Home</a></p>
+                </div>
+
+                <script>
+                    function resetData() {
+                        if (confirm('This will clear all data and reload demo users. Continue?')) {
+                            localStorage.setItem('forceReseed', 'true');
+                            localStorage.removeItem('dataSeeded');
+                            alert('Data reset! Page will reload.');
+                            window.location.reload();
+                        }
+                    }
+                </script>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/api.js"></script>
+
+    <script src="js/core/i18n.js"></script>
+    <script>
+        (function() {
+            const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            if (existingUsers.length === 0) {
+                const demoUsers = [
+                    { email: 'student@ssplp.org', password: '123', name: 'Demo Student', role: 'student' },
+                    { email: 'teacher@ssplp.org', password: '123', name: 'Demo Teacher', role: 'teacher' },
+                    { email: 'admin@ssplp.org', password: '123', name: 'Demo Admin', role: 'admin' }
+                ];
+                localStorage.setItem('users', JSON.stringify(demoUsers));
+                console.log('Demo users seeded!');
+            }
+        })();
+    </script>
+    <script src="js/core/app.js"></script>
+</body>
+</html>

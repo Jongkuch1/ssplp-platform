@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - South Sudan Personalized Learning Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="dashboard.html">
+                    <img src="logo..png" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="subjects.html" class="nav-link">Subjects</a>
+                <a href="content-management.html" class="nav-link">Learn</a>
+                <a href="quizzes.html" class="nav-link">Practice</a>
+                <a href="progress.html" class="nav-link">Progress</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <button id="logoutBtn" class="nav-link btn-logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="dashboardContent">
+        <!-- Role-specific dashboard content will be loaded here -->
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Redirect to role-specific dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const userRole = user.role || 'student';
+            
+            switch(userRole) {
+                case 'student':
+                    window.location.href = 'student-dashboard.html';
+                    break;
+                case 'teacher':
+                    window.location.href = 'teacher-dashboard.html';
+                    break;
+                case 'admin':
+                    window.location.href = 'admin-dashboard.html';
+                    break;
+                default:
+                    window.location.href = 'student-dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

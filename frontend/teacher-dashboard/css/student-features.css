@@ -1,0 +1,202 @@
+/* Student Dashboard Features Styles */
+
+/* Recommendations */
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.rec-card {
+    padding: 20px;
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+    color: white;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.rec-card h4 {
+    margin: 0 0 10px 0;
+}
+
+.rec-card p {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    background: white;
+    color: #6d28d9;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+}
+
+/* Sessions & Downloads */
+.sessions-list, .downloads-list {
+    margin-top: 15px;
+}
+
+.session-card, .download-item {
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.session-item {
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Quiz Player */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.quiz-info {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.question-card {
+    margin-bottom: 30px;
+}
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.option-item {
+    padding: 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.option-item:hover {
+    border-color: #6d28d9;
+    background: #f9fafb;
+}
+
+.option-item input[type="radio"] {
+    width: 20px;
+    height: 20px;
+}
+
+.quiz-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.quiz-results {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.result-score h1 {
+    font-size: 72px;
+    color: #6d28d9;
+    margin: 20px 0;
+}
+
+.result-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* Download Manager */
+.download-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.download-card {
+    padding: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.download-card i {
+    font-size: 40px;
+    color: #6d28d9;
+    margin-bottom: 10px;
+}
+
+.download-list {
+    margin-top: 15px;
+}
+
+/* Buttons */
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group select,
+.form-group input[type="datetime-local"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: #6d28d9;
+}

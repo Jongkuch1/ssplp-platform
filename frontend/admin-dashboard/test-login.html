@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login - SSPLP</title>
+</head>
+<body>
+    <h1>Testing Demo Users</h1>
+    <button onclick="checkUsers()">Check Users in Storage</button>
+    <button onclick="seedNow()">Seed Users Now</button>
+    <button onclick="testLogin()">Test Login</button>
+    <pre id="output"></pre>
+
+    <script>
+        function checkUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            document.getElementById('output').textContent = 
+                'Users in storage:\n' + JSON.stringify(users, null, 2);
+        }
+
+        function seedNow() {
+            const demoUsers = [
+                {
+                    email: 'student@ssplp.org',
+                    password: 'student123',
+                    firstName: 'Demo',
+                    lastName: 'Student',
+                    role: 'student',
+                    grade: 'S1'
+                },
+                {
+                    email: 'teacher@ssplp.org',
+                    password: 'teacher123',
+                    firstName: 'Demo',
+                    lastName: 'Teacher',
+                    role: 'teacher'
+                },
+                {
+                    email: 'admin@ssplp.org',
+                    password: 'admin123',
+                    firstName: 'Demo',
+                    lastName: 'Admin',
+                    role: 'admin'
+                }
+            ];
+            
+            localStorage.setItem('users', JSON.stringify(demoUsers));
+            localStorage.setItem('dataSeeded', 'true');
+            document.getElementById('output').textContent = 'Users seeded! Check storage now.';
+        }
+
+        function testLogin() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const email = 'student@ssplp.org';
+            const password = 'student123';
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            document.getElementById('output').textContent = 
+                'Login test:\n' + 
+                'Email: ' + email + '\n' +
+                'Password: ' + password + '\n' +
+                'Found user: ' + (user ? 'YES' : 'NO') + '\n' +
+                'User data: ' + JSON.stringify(user, null, 2);
+        }
+
+        // Auto seed on load
+        window.onload = function() {
+            seedNow();
+            checkUsers();
+        };
+    </script>
+</body>
+</html>

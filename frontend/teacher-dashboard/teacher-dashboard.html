@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Learn South Sudan</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/teacher-features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="teacher-dashboard.html">
+                    <img src="logo.svg" alt="SSPLP Logo" class="logo">
+                    <span>SSPLP</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="teacher-dashboard.html" class="nav-link active" data-i18n="home">Home</a>
+                <a href="teacher-courses.html" class="nav-link" data-i18n="courses">Courses</a>
+                <a href="teacher-assignments.html" class="nav-link" data-i18n="assignments">Assignments</a>
+                <a href="teacher-students.html" class="nav-link" data-i18n="students">Students</a>
+                <a href="messaging.html" class="nav-link" data-i18n="messages">Messages</a>
+                <a href="teacher-analytics.html" class="nav-link" data-i18n="analytics">Analytics</a>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="setLanguage('ar')">AR</button>
+                </div>
+                <a href="profile.html" class="btn-secondary" id="profileBtn" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                    <div id="navProfilePic" style="width: 32px; height: 32px; border-radius: 50%; background: #6d28d9; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid #6d28d9;">T</div>
+                    <span data-i18n="profile">Profile</span>
+                </a>
+                <button id="logoutBtn" class="btn-signin" data-i18n="logout">Logout</button>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            <div class="welcome-section">
+                <h1><span data-i18n="welcomeBackTeacher">Welcome back</span>, <span id="teacherName">Teacher</span>! ðŸ‘¨â€ðŸ«</h1>
+                <p data-i18n="manageCoursesDesc">Manage your courses, grade assignments, and check on your students</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3 id="totalStudents">-</h3>
+                    <p data-i18n="totalStudents">Total Students</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user-check"></i>
+                    <h3 id="activeStudents">-</h3>
+                    <p data-i18n="activeStudents">Active Students</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="avgClassScore">-</h3>
+                    <p data-i18n="classAverage">Class Average</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-book"></i>
+                    <h3 id="totalCourses">-</h3>
+                    <p data-i18n="totalCourses">Total Courses</p>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="main-content">
+                    <div class="card">
+                        <h2><i class="fas fa-video"></i> <span data-i18n="yourUpcomingSessions">Your Upcoming Sessions</span></h2>
+                        <div id="upcomingSessions" class="sessions-list">
+                            <!-- FR05: Tutoring sessions -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-clipboard-check"></i> <span data-i18n="assignmentsToGrade">Assignments to Grade</span></h2>
+                        <div id="pendingGrading" class="grading-list">
+                            <!-- FR12: Grading queue -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <div class="card">
+                        <h2 data-i18n="quickActions">Quick Actions</h2>
+                        <div class="quick-actions">
+                            <a href="teacher-schedule-meeting.html" class="quick-action">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span data-i18n="scheduleMeeting">Schedule Meeting</span>
+                            </a>
+                            <a href="course-builder.html" class="quick-action">
+                                <i class="fas fa-plus-circle"></i>
+                                <span data-i18n="createCourse">Create Course</span>
+                            </a>
+                            <a href="assignment-builder.html" class="quick-action">
+                                <i class="fas fa-file-alt"></i>
+                                <span data-i18n="createAssignment">Create Assignment</span>
+                            </a>
+                            <a href="resource-upload.html" class="quick-action">
+                                <i class="fas fa-upload"></i>
+                                <span data-i18n="uploadResources">Upload Resources</span>
+                            </a>
+                            <a href="create-quiz.html" class="quick-action">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span data-i18n="createQuiz">Create Quiz</span>
+                            </a>
+                            <a href="grading-queue.html" class="quick-action">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-i18n="gradeSubmissions">Grade Submissions</span>
+                            </a>
+                            <a href="student-roster.html" class="quick-action">
+                                <i class="fas fa-users"></i>
+                                <span data-i18n="viewStudents">View Students</span>
+                            </a>
+                            <a href="teacher-analytics.html" class="quick-action">
+                                <i class="fas fa-chart-bar"></i>
+                                <span data-i18n="viewAnalytics">View Analytics</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-clipboard-list"></i> <span data-i18n="yourContent">Your Content</span></h2>
+                        <div id="myContent" class="info-list">
+                            <!-- Dynamically loaded -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/core/api.js"></script>
+    <script src="js/data-sync.js"></script>
+    <script src="js/core/i18n.js"></script>
+    <script src="js/seed-data.js"></script>
+    <script src="js/core/universal.js"></script>
+    <script src="js/teacher/teacher-features.js"></script>
+    <script src="js/core/app.js"></script>
+    <script>
+        // Load dashboard data
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const userName = user.name || translateRole('teacher');
+            document.getElementById('teacherName').textContent = userName;
+            
+            // Load profile picture with initials or uploaded image
+            const profilePic = document.getElementById('navProfilePic');
+            if (user.profilePic) {
+                profilePic.innerHTML = `<img src="${user.profilePic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                profilePic.textContent = initials;
+            }
+            
+            // Calculate real statistics
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const students = users.filter(u => u.role === 'student');
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+            const teacherCourses = courses.filter(c => c.teacherId === user.id);
+            const quizAttempts = JSON.parse(localStorage.getItem('quizAttempts') || '[]');
+            
+            // Total students
+            document.getElementById('totalStudents').textContent = students.length;
+            
+            // Active students (students with activity in last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const activeStudents = students.filter(s => {
+                const lastActive = s.lastActive ? new Date(s.lastActive) : new Date(s.createdAt || Date.now());
+                return lastActive > thirtyDaysAgo;
+            });
+            document.getElementById('activeStudents').textContent = activeStudents.length;
+            
+            // Class average from quiz attempts
+            if (quizAttempts.length > 0) {
+                const totalScore = quizAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
+                const avgScore = Math.round(totalScore / quizAttempts.length);
+                document.getElementById('avgClassScore').textContent = avgScore + '%';
+            } else {
+                document.getElementById('avgClassScore').textContent = 'N/A';
+            }
+            
+            // Total courses
+            document.getElementById('totalCourses').textContent = teacherCourses.length;
+            
+            // Load upcoming sessions
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]')
+                .filter(b => b.teacherId === user.id && new Date(b.datetime) > new Date())
+                .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+            
+            const sessionsContainer = document.getElementById('upcomingSessions');
+            const noSessionsText = t('noUpcomingSessions');
+            const scheduleText = t('scheduleMeeting');
+            const joinText = t('join');
+            
+            sessionsContainer.innerHTML = bookings.length ? bookings.map(s => {
+                const student = users.find(u => u.id === s.studentId);
+                return `
+                    <div class="session-card" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <h3 style="margin: 0 0 5px 0;">${s.title || s.type + ' session'}</h3>
+                                <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-user"></i> ${student ? student.name : 'Student'}</p>
+                                <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-clock"></i> ${new Date(s.datetime).toLocaleString()}</p>
+                                <p style="color: #6b7280; margin: 5px 0;"><i class="fas fa-users"></i> ${s.type}</p>
+                            </div>
+                            <a href="${s.meetLink}" target="_blank" class="btn btn-primary" style="white-space: nowrap;">
+                                <i class="fas fa-video"></i> ${joinText}
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('') : `<p>${noSessionsText} <a href="teacher-schedule-meeting.html">${scheduleText}</a></p>`;
+            
+            // Load pending grading
+            const submissions = TeacherFeatures.getSubmissions();
+            const pending = submissions.filter(s => s.status !== 'graded');
+            
+            const gradingContainer = document.getElementById('pendingGrading');
+            const noPendingText = t('noPendingSubmissions');
+            
+            gradingContainer.innerHTML = pending.length ? pending.slice(0, 5).map(s => {
+                const student = users.find(u => u.id === s.studentId);
+                return `
+                    <div class="grading-item" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px;">
+                        <span>${student ? student.name : 'Student'} - Assignment ${s.assignmentId}</span>
+                        <a href="grading-queue.html" class="btn btn-primary btn-sm">Grade</a>
+                    </div>
+                `;
+            }).join('') : `<p>${noPendingText}</p>`;
+            
+            // Load teacher content summary
+            const myContentContainer = document.getElementById('myContent');
+            const assignments = JSON.parse(localStorage.getItem('assignments') || '[]').filter(a => a.teacherId === user.id);
+            const resources = JSON.parse(localStorage.getItem('resources') || '[]').filter(r => r.teacherId === user.id);
+            
+            myContentContainer.innerHTML = `
+                <div class="info-item">
+                    <strong>${teacherCourses.length}</strong> <span data-i18n="courses">Courses</span>
+                </div>
+                <div class="info-item">
+                    <strong>${assignments.length}</strong> <span data-i18n="assignments">Assignments</span>
+                </div>
+                <div class="info-item">
+                    <strong>${resources.length}</strong> <span data-i18n="resources">Resources</span>
+                </div>
+                <div class="info-item">
+                    <strong>${bookings.length}</strong> <span data-i18n="upcomingSessions">Upcoming Sessions</span>
+                </div>
+            `;
+            
+            // Re-translate page after dynamic content is loaded
+            translatePage();
+        });
+    </script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.getElementById('navToggle');
+            const navMenu = document.getElementById('navMenu');
+            
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navMenu.classList.toggle('active');
+                    console.log('Menu toggled:', navMenu.classList.contains('active'));
+                });
+                
+                // Close menu when clicking on a link
+                const navLinks = navMenu.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        navMenu.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
