@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSPLP - South Sudan Personalized Learning Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,183 +14,564 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
         }
         
-        .container {
-            max-width: 1200px;
-            width: 100%;
+        .nav-links {
+            display: flex;
+            gap: 2rem;
         }
         
-        .header {
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .btn-signin {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+        
+        .btn-signin:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
             text-align: center;
             color: white;
-            margin-bottom: 50px;
         }
         
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+        .highlight {
+            color: #ffd700;
         }
         
-        .dashboards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
         }
         
-        .dashboard-card {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary, .btn-outline {
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
             text-decoration: none;
-            color: inherit;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .btn-outline:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        /* Auth Container */
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
             display: block;
         }
         
-        .dashboard-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        .form-group {
+            margin-bottom: 1.5rem;
         }
         
-        .dashboard-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-        
-        .dashboard-card h2 {
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
             color: #333;
-            margin-bottom: 15px;
-            font-size: 1.8rem;
         }
         
-        .dashboard-card p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
         }
         
-        .dashboard-card .btn {
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: 600;
-            transition: opacity 0.3s ease;
-        }
-        
-        .dashboard-card .btn:hover {
-            opacity: 0.9;
-        }
-        
-        .status {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
+            border: none;
             border-radius: 10px;
-            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            margin-top: 1rem;
             text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        
+        /* Features Section */
+        .features {
+            background: white;
+            padding: 4rem 2rem;
+        }
+        
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            padding: 2rem;
+            border-radius: 15px;
+            background: #f8f9fa;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 2rem 1rem;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h4 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column a {
+            color: #bbb;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column a:hover {
             color: white;
         }
         
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background: #4ade80;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #888;
         }
         
         @media (max-width: 768px) {
-            .header h1 {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
                 font-size: 2rem;
             }
             
-            .dashboards {
-                grid-template-columns: 1fr;
+            .auth-container {
+                margin: 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎓 SSPLP</h1>
-            <p>South Sudan Personalized Learning Platform</p>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>SSPLP</span>
+            </div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <h1><span>Learn Better.</span> <span class="highlight">Achieve More.</span></h1>
+        <p>Study at your own pace with lessons that match South Sudan's curriculum. Works offline too.</p>
+    </section>
+
+    <!-- Auth Container (Login/Signup) -->
+    <div class="auth-container">
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchTab('login')">Login</div>
+            <div class="auth-tab" onclick="switchTab('signup')">Sign Up</div>
         </div>
         
-        <div class="dashboards">
-            <a href="/student" class="dashboard-card">
-                <div class="dashboard-icon">👨‍🎓</div>
-                <h2>Student Portal</h2>
-                <p>Access courses, take quizzes, track progress, and communicate with teachers</p>
-                <span class="btn">Enter Student Dashboard</span>
-            </a>
-            
-            <a href="/teacher" class="dashboard-card">
-                <div class="dashboard-icon">👩‍🏫</div>
-                <h2>Teacher Portal</h2>
-                <p>Create courses, manage assignments, grade students, and schedule meetings</p>
-                <span class="btn">Enter Teacher Dashboard</span>
-            </a>
-            
-            <a href="/admin" class="dashboard-card">
-                <div class="dashboard-icon">⚙️</div>
-                <h2>Admin Portal</h2>
-                <p>Manage users, monitor system, approve content, and generate reports</p>
-                <span class="btn">Enter Admin Dashboard</span>
-            </a>
-        </div>
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form active">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn-submit">Login</button>
+            <div class="error-message" id="loginError"></div>
+        </form>
         
-        <div class="status">
-            <span class="status-indicator"></span>
-            <span id="status-text">Checking backend status...</span>
-        </div>
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form">
+            <div class="form-group">
+                <label for="signupName">Full Name</label>
+                <input type="text" id="signupName" required placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" required placeholder="Create a password">
+            </div>
+            <div class="form-group">
+                <label for="signupRole">I am a...</label>
+                <select id="signupRole" required>
+                    <option value="">Select your role</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Sign Up</button>
+            <div class="error-message" id="signupError"></div>
+            <div class="success-message" id="signupSuccess"></div>
+        </form>
     </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="section-container">
+            <h2>What You Get</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-brain fa-3x" style="color: #667eea; margin-bottom: 1rem;"></i>
+                    <h3>Smart Recommendations</h3>
+                    <p>Get lesson suggestions based on what you're learning and how you're doing.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chalkboard-teacher fa-3x" style="color: #667eea; margin-bottom: 1rem;"></i>
+                    <h3>Online Tutoring</h3>
+                    <p>Book one-on-one or group sessions with teachers when you need help.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-wifi fa-3x" style="color: #667eea; margin-bottom: 1rem;"></i>
+                    <h3>Works Offline</h3>
+                    <p>Download lessons and study without internet. Perfect for areas with poor connection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h4>About SSPLP</h4>
+                    <p>Making quality education accessible to students across South Sudan, online and offline.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> j.anyar@alustudent.com</p>
+                    <p><i class="fas fa-phone"></i> +211 929 660 006</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SSPLP. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
     
     <script>
-        // Check backend health
-        async function checkBackendHealth() {
-            try {
-                const response = await fetch('/api/health');
-                const data = await response.json();
-                if (data.status === 'OK') {
-                    document.getElementById('status-text').textContent = '✓ Backend Online - All Systems Operational';
-                } else {
-                    document.getElementById('status-text').textContent = '⚠ Backend Warning';
-                }
-            } catch (error) {
-                document.getElementById('status-text').textContent = '✗ Backend Offline';
-                document.querySelector('.status-indicator').style.background = '#ef4444';
+        // API URL Configuration
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+        
+        // Tab Switching
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                tabs[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('signupForm').classList.add('active');
             }
         }
         
-        checkBackendHealth();
-        setInterval(checkBackendHealth, 30000); // Check every 30 seconds
+        // Login Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect based on role
+                    const role = data.user.role;
+                    if (role === 'student') {
+                        window.location.href = '/student/dashboard.html';
+                    } else if (role === 'teacher') {
+                        window.location.href = '/teacher/teacher-dashboard.html';
+                    } else if (role === 'admin') {
+                        window.location.href = '/admin/admin-dashboard.html';
+                    }
+                } else {
+                    errorDiv.textContent = data.message || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        });
+        
+        // Signup Handler
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const role = document.getElementById('signupRole').value;
+            
+            const errorDiv = document.getElementById('signupError');
+            const successDiv = document.getElementById('signupSuccess');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successDiv.textContent = 'Account created successfully! Logging you in...';
+                    successDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
+                    
+                    // Store token and redirect
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    setTimeout(() => {
+                        if (role === 'student') {
+                            window.location.href = '/student/dashboard.html';
+                        } else if (role === 'teacher') {
+                            window.location.href = '/teacher/teacher-dashboard.html';
+                        } else if (role === 'admin') {
+                            window.location.href = '/admin/admin-dashboard.html';
+                        }
+                    }, 1500);
+                } else {
+                    errorDiv.textContent = data.message || 'Registration failed';
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
