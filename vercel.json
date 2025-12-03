@@ -1,15 +1,8 @@
 {
-  "builds": [
+  "rewrites": [
     {
-      "src": "Dockerfile",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "." }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
   ]
 }
