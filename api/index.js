@@ -65,13 +65,37 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SSPLP Backend Running on Vercel' });
 });
 
-// Root handler
-app.get('/', (req, res) => {
+// Root handler - welcome page
+app.get('/api', (req, res) => {
   res.json({ 
-    message: 'SSPLP API',
-    endpoints: '/api/*',
-    health: '/api/health'
+    message: 'South Sudan Personalized Learning Platform API',
+    status: 'online',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/*',
+      users: '/api/users/*',
+      courses: '/api/courses/*',
+      quizzes: '/api/quizzes/*',
+      assignments: '/api/assignments/*',
+      learning: '/api/learning/*',
+      messages: '/api/messages/*',
+      meetings: '/api/meetings/*'
+    },
+    documentation: 'https://github.com/Jongkuch1/ssplp-platform'
   });
+});
+
+// Catch-all for non-API routes
+app.use('*', (req, res) => {
+  if (!req.originalUrl.startsWith('/api')) {
+    return res.status(404).json({ 
+      error: 'Not Found',
+      message: 'This is an API server. Please use /api endpoints.',
+      availableEndpoints: '/api'
+    });
+  }
+  res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // Serverless handler
