@@ -1,5 +1,7 @@
 // API Configuration
-const API_URL = 'http://localhost:5000/api';
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000/api'
+    : '/api'; // Use same domain (Vercel deployment)
 
 // API Client
 const API = {

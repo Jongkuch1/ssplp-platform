@@ -1,7 +1,7 @@
 // API Configuration
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5000/api'
-    : 'https://ssplp-backend.onrender.com/api'; // Update with your Render URL
+    : '/api'; // Use same domain (Vercel deployment)
 
 // API Client
 const API = {

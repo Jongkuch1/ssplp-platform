@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSPLP - South Sudan Personalized Learning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .dashboards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .dashboard-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        .dashboard-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-card .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+        
+        .dashboard-card .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .status {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #4ade80;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 SSPLP</h1>
+            <p>South Sudan Personalized Learning Platform</p>
+        </div>
+        
+        <div class="dashboards">
+            <a href="/student" class="dashboard-card">
+                <div class="dashboard-icon">👨‍🎓</div>
+                <h2>Student Portal</h2>
+                <p>Access courses, take quizzes, track progress, and communicate with teachers</p>
+                <span class="btn">Enter Student Dashboard</span>
+            </a>
+            
+            <a href="/teacher" class="dashboard-card">
+                <div class="dashboard-icon">👩‍🏫</div>
+                <h2>Teacher Portal</h2>
+                <p>Create courses, manage assignments, grade students, and schedule meetings</p>
+                <span class="btn">Enter Teacher Dashboard</span>
+            </a>
+            
+            <a href="/admin" class="dashboard-card">
+                <div class="dashboard-icon">⚙️</div>
+                <h2>Admin Portal</h2>
+                <p>Manage users, monitor system, approve content, and generate reports</p>
+                <span class="btn">Enter Admin Dashboard</span>
+            </a>
+        </div>
+        
+        <div class="status">
+            <span class="status-indicator"></span>
+            <span id="status-text">Checking backend status...</span>
+        </div>
+    </div>
+    
+    <script>
+        // Check backend health
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                if (data.status === 'OK') {
+                    document.getElementById('status-text').textContent = '✓ Backend Online - All Systems Operational';
+                } else {
+                    document.getElementById('status-text').textContent = '⚠ Backend Warning';
+                }
+            } catch (error) {
+                document.getElementById('status-text').textContent = '✗ Backend Offline';
+                document.querySelector('.status-indicator').style.background = '#ef4444';
+            }
+        }
+        
+        checkBackendHealth();
+        setInterval(checkBackendHealth, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>

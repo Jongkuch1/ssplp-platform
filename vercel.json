@@ -1,8 +1,47 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/:path*",
       "destination": "/api"
+    },
+    {
+      "source": "/student/:path*",
+      "destination": "/frontend/student-dashboard/:path*"
+    },
+    {
+      "source": "/student",
+      "destination": "/frontend/student-dashboard/index.html"
+    },
+    {
+      "source": "/teacher/:path*",
+      "destination": "/frontend/teacher-dashboard/:path*"
+    },
+    {
+      "source": "/teacher",
+      "destination": "/frontend/teacher-dashboard/index.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/frontend/admin-dashboard/:path*"
+    },
+    {
+      "source": "/admin",
+      "destination": "/frontend/admin-dashboard/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
