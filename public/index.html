@@ -64,6 +64,40 @@
             color: #667eea;
         }
         
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .language-switcher {
+            display: flex;
+            gap: 5px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 20px;
+        }
+        
+        .lang-btn {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 15px;
+            background: transparent;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .lang-btn:hover {
+            color: #667eea;
+        }
+        
         .btn-signin {
             background: #667eea;
             color: white;
@@ -325,6 +359,19 @@
                 display: none;
             }
             
+            .nav-right {
+                gap: 10px;
+            }
+            
+            .language-switcher {
+                padding: 3px;
+            }
+            
+            .lang-btn {
+                padding: 4px 10px;
+                font-size: 0.9rem;
+            }
+            
             .hero h1 {
                 font-size: 2rem;
             }
@@ -348,6 +395,12 @@
                 <a href="#features">Features</a>
                 <a href="#about">About</a>
                 <a href="#contact">Contact</a>
+            </div>
+            <div class="nav-right">
+                <div class="language-switcher">
+                    <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ar" onclick="switchLanguage('ar')">AR</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -572,6 +625,36 @@
                 successDiv.style.display = 'none';
             }
         });
+        
+        // Language Switcher
+        function switchLanguage(lang) {
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // Store preference
+            localStorage.setItem('language', lang);
+            
+            // Apply language (basic implementation - can be expanded with full i18n)
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+            } else {
+                document.documentElement.setAttribute('dir', 'ltr');
+                document.documentElement.setAttribute('lang', 'en');
+            }
+            
+            // For full implementation, you would load translations here
+            console.log(`Language switched to: ${lang}`);
+        }
+        
+        // Load saved language preference
+        const savedLang = localStorage.getItem('language') || 'en';
+        if (savedLang === 'ar') {
+            switchLanguage('ar');
+        }
     </script>
 </body>
 </html>
