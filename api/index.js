@@ -1,4 +1,4 @@
-// Vercel serverless function entry point
+// Vercel serverless function entry point - Updated Dec 4, 2025
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
