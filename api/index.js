@@ -10,12 +10,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Check for required environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+  console.error('Please configure these in your Vercel project settings.');
+}
+
 // MongoDB Connection (with connection pooling for serverless)
 let isConnected = false;
 
 const connectDB = async () => {
   if (isConnected) {
     return;
+  }
+  
+  // Check if MONGODB_URI exists
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI environment variable is not set. Please configure it in Vercel project settings.');
   }
   
   try {
