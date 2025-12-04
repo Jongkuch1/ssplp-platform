@@ -26,11 +26,12 @@ if (missingEnvVars.length > 0) {
 }
 
 // MongoDB Connection (with connection pooling for serverless)
-let isConnected = false;
+let cachedDb = null;
 
 const connectDB = async () => {
-  if (isConnected) {
-    return;
+  if (cachedDb && mongoose.connection.readyState === 1) {
+    console.log('Using cached MongoDB connection');
+    return cachedDb;
   }
   
   // Check if MONGODB_URI exists
@@ -39,13 +40,22 @@ const connectDB = async () => {
   }
   
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
+    // Set mongoose options for better serverless performance
+    mongoose.set('strictQuery', false);
+    mongoose.set('bufferCommands', false);
+    
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
     });
-    isConnected = true;
+    
+    cachedDb = db;
     console.log('✅ MongoDB Connected');
+    return db;
   } catch (err) {
-    console.error('❌ MongoDB Connection Error:', err);
+    console.error('❌ MongoDB Connection Error:', err.message);
     throw err;
   }
 };
@@ -118,8 +128,11 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// Serverless handler
+// Serverless handler with timeout protection
 module.exports = async (req, res) => {
+  // Set response timeout
+  res.setTimeout(25000);
+  
   try {
     // Check if environment variables are set
     if (!process.env.MONGODB_URI || !process.env.JWT_SECRET) {
@@ -133,14 +146,24 @@ module.exports = async (req, res) => {
       });
     }
     
-    await connectDB();
+    // Connect to DB with timeout
+    await Promise.race([
+      connectDB(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database connection timeout')), 8000)
+      )
+    ]);
+    
     return app(req, res);
   } catch (error) {
-    console.error('Serverless function error:', error);
-    return res.status(500).json({ 
-      error: 'Server Error',
-      message: error.message,
-      hint: 'Check Vercel function logs for details'
-    });
+    console.error('Serverless function error:', error.message);
+    
+    if (!res.headersSent) {
+      return res.status(500).json({ 
+        error: 'Server Error',
+        message: error.message.includes('timeout') ? 'Database connection timed out. Please try again.' : 'An error occurred processing your request.',
+        hint: 'If this persists, check database connectivity'
+      });
+    }
   }
 };
