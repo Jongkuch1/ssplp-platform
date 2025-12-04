@@ -354,6 +354,35 @@
             color: #888;
         }
         
+        /* RTL Support */
+        [dir="rtl"] {
+            text-align: right;
+        }
+        
+        [dir="rtl"] .nav-container {
+            flex-direction: row-reverse;
+        }
+        
+        [dir="rtl"] .nav-brand {
+            flex-direction: row-reverse;
+        }
+        
+        [dir="rtl"] .nav-right {
+            flex-direction: row-reverse;
+        }
+        
+        [dir="rtl"] .hero-buttons {
+            flex-direction: row-reverse;
+        }
+        
+        [dir="rtl"] .auth-tabs {
+            flex-direction: row-reverse;
+        }
+        
+        [dir="rtl"] .form-group {
+            text-align: right;
+        }
+        
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -626,7 +655,70 @@
             }
         });
         
-        // Language Switcher
+        // Language Switcher with Translations
+        const translations = {
+            en: {
+                home: 'Home',
+                features: 'Features',
+                about: 'About',
+                contact: 'Contact',
+                learnBetter: 'Learn Better.',
+                achieveMore: 'Achieve More.',
+                heroDesc: "Study at your own pace with lessons that match South Sudan's curriculum. Works offline too.",
+                login: 'Login',
+                signup: 'Sign Up',
+                email: 'Email',
+                password: 'Password',
+                fullName: 'Full Name',
+                role: 'I am a...',
+                selectRole: 'Select your role',
+                student: 'Student',
+                teacher: 'Teacher',
+                admin: 'Administrator',
+                whatYouGet: 'What You Get',
+                smartRec: 'Smart Recommendations',
+                smartRecDesc: "Get lesson suggestions based on what you're learning and how you're doing.",
+                onlineTutoring: 'Online Tutoring',
+                onlineTutoringDesc: 'Book one-on-one or group sessions with teachers when you need help.',
+                worksOffline: 'Works Offline',
+                worksOfflineDesc: 'Download lessons and study without internet. Perfect for areas with poor connection.',
+                aboutSSPLP: 'About SSPLP',
+                aboutDesc: 'Making quality education accessible to students across South Sudan, online and offline.',
+                quickLinks: 'Quick Links',
+                allRights: '© 2025 SSPLP. All Rights Reserved.'
+            },
+            ar: {
+                home: 'الرئيسية',
+                features: 'المميزات',
+                about: 'حول',
+                contact: 'اتصل',
+                learnBetter: 'تعلم بشكل أفضل.',
+                achieveMore: 'حقق المزيد.',
+                heroDesc: 'ادرس بالسرعة التي تناسبك مع دروس تتماشى مع منهج جنوب السودان. تعمل أيضًا بدون إنترنت.',
+                login: 'تسجيل الدخول',
+                signup: 'التسجيل',
+                email: 'البريد الإلكتروني',
+                password: 'كلمة المرور',
+                fullName: 'الاسم الكامل',
+                role: 'أنا...',
+                selectRole: 'اختر دورك',
+                student: 'طالب',
+                teacher: 'معلم',
+                admin: 'مسؤول',
+                whatYouGet: 'ما ستحصل عليه',
+                smartRec: 'توصيات ذكية',
+                smartRecDesc: 'احصل على اقتراحات الدروس بناءً على ما تتعلمه وكيف تتقدم.',
+                onlineTutoring: 'دروس خصوصية عبر الإنترنت',
+                onlineTutoringDesc: 'احجز جلسات فردية أو جماعية مع المعلمين عندما تحتاج إلى مساعدة.',
+                worksOffline: 'يعمل بدون إنترنت',
+                worksOfflineDesc: 'قم بتنزيل الدروس والدراسة بدون إنترنت. مثالي للمناطق ذات الاتصال الضعيف.',
+                aboutSSPLP: 'حول SSPLP',
+                aboutDesc: 'جعل التعليم الجيد متاحًا للطلاب في جميع أنحاء جنوب السودان، عبر الإنترنت وبدونه.',
+                quickLinks: 'روابط سريعة',
+                allRights: '© 2025 SSPLP. جميع الحقوق محفوظة.'
+            }
+        };
+        
         function switchLanguage(lang) {
             // Update active button
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -637,7 +729,7 @@
             // Store preference
             localStorage.setItem('language', lang);
             
-            // Apply language (basic implementation - can be expanded with full i18n)
+            // Apply language direction
             if (lang === 'ar') {
                 document.documentElement.setAttribute('dir', 'rtl');
                 document.documentElement.setAttribute('lang', 'ar');
@@ -646,8 +738,60 @@
                 document.documentElement.setAttribute('lang', 'en');
             }
             
-            // For full implementation, you would load translations here
-            console.log(`Language switched to: ${lang}`);
+            // Apply translations
+            const t = translations[lang];
+            
+            // Navigation
+            document.querySelectorAll('.nav-links a')[0].textContent = t.home;
+            document.querySelectorAll('.nav-links a')[1].textContent = t.features;
+            document.querySelectorAll('.nav-links a')[2].textContent = t.about;
+            document.querySelectorAll('.nav-links a')[3].textContent = t.contact;
+            
+            // Hero
+            document.querySelector('.hero h1 span:first-child').textContent = t.learnBetter + ' ';
+            document.querySelector('.hero h1 .highlight').textContent = t.achieveMore;
+            document.querySelector('.hero p').textContent = t.heroDesc;
+            
+            // Auth tabs
+            document.querySelectorAll('.auth-tab')[0].textContent = t.login;
+            document.querySelectorAll('.auth-tab')[1].textContent = t.signup;
+            
+            // Login form
+            document.querySelector('#loginForm label[for="loginEmail"]').textContent = t.email;
+            document.querySelector('#loginForm label[for="loginPassword"]').textContent = t.password;
+            document.querySelector('#loginForm .btn-submit').textContent = t.login;
+            document.querySelector('#loginEmail').placeholder = t.email;
+            document.querySelector('#loginPassword').placeholder = t.password;
+            
+            // Signup form
+            document.querySelector('#signupForm label[for="signupName"]').textContent = t.fullName;
+            document.querySelector('#signupForm label[for="signupEmail"]').textContent = t.email;
+            document.querySelector('#signupForm label[for="signupPassword"]').textContent = t.password;
+            document.querySelector('#signupForm label[for="signupRole"]').textContent = t.role;
+            document.querySelector('#signupForm .btn-submit').textContent = t.signup;
+            document.querySelector('#signupName').placeholder = t.fullName;
+            document.querySelector('#signupEmail').placeholder = t.email;
+            document.querySelector('#signupPassword').placeholder = t.password;
+            document.querySelector('#signupRole option[value=""]').textContent = t.selectRole;
+            document.querySelector('#signupRole option[value="student"]').textContent = t.student;
+            document.querySelector('#signupRole option[value="teacher"]').textContent = t.teacher;
+            document.querySelector('#signupRole option[value="admin"]').textContent = t.admin;
+            
+            // Features section
+            document.querySelector('.features h2').textContent = t.whatYouGet;
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards[0].querySelector('h3').textContent = t.smartRec;
+            featureCards[0].querySelector('p').textContent = t.smartRecDesc;
+            featureCards[1].querySelector('h3').textContent = t.onlineTutoring;
+            featureCards[1].querySelector('p').textContent = t.onlineTutoringDesc;
+            featureCards[2].querySelector('h3').textContent = t.worksOffline;
+            featureCards[2].querySelector('p').textContent = t.worksOfflineDesc;
+            
+            // Footer
+            document.querySelector('.footer-column h4').textContent = t.aboutSSPLP;
+            document.querySelector('.footer-column p').textContent = t.aboutDesc;
+            document.querySelectorAll('.footer-column h4')[1].textContent = t.quickLinks;
+            document.querySelector('.footer-bottom p').innerHTML = t.allRights;
         }
         
         // Load saved language preference
