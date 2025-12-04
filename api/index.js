@@ -2,7 +2,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+
+// Try loading from multiple .env locations
 require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../backend/.env') });
 
 const app = express();
 
@@ -16,7 +21,8 @@ const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
   console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
-  console.error('Please configure these in your Vercel project settings.');
+  console.error('Available env vars:', Object.keys(process.env).filter(k => !k.includes('SECRET')).join(', '));
+  console.error('Please configure these in your Vercel project settings under Settings > Environment Variables');
 }
 
 // MongoDB Connection (with connection pooling for serverless)
@@ -114,6 +120,27 @@ app.use('*', (req, res) => {
 
 // Serverless handler
 module.exports = async (req, res) => {
-  await connectDB();
-  return app(req, res);
+  try {
+    // Check if environment variables are set
+    if (!process.env.MONGODB_URI || !process.env.JWT_SECRET) {
+      return res.status(500).json({ 
+        error: 'Configuration Error',
+        message: 'Server environment variables are not configured. Please add MONGODB_URI and JWT_SECRET to Vercel Environment Variables in Settings.',
+        missingVars: [
+          !process.env.MONGODB_URI ? 'MONGODB_URI' : null,
+          !process.env.JWT_SECRET ? 'JWT_SECRET' : null
+        ].filter(Boolean)
+      });
+    }
+    
+    await connectDB();
+    return app(req, res);
+  } catch (error) {
+    console.error('Serverless function error:', error);
+    return res.status(500).json({ 
+      error: 'Server Error',
+      message: error.message,
+      hint: 'Check Vercel function logs for details'
+    });
+  }
 };
